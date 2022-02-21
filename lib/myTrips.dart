@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -6,12 +5,126 @@ import 'navigationDrawer.dart';
 
 class MyTrips extends StatelessWidget {
   const MyTrips({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Mis viajes"),
+        backgroundColor: Colors.orange,
+      ),
+      body: ListView(padding: const EdgeInsets.all(8), children: <Widget>[
+        Card(
+            child: ListTile(
+          title: const Text("Soriana San Pedro"),
+          subtitle: const Text("Total: \$260"),
+          leading: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                  "https://cdn1.iconfinder.com/data/icons/maps-navigation-round-corner/512/map__basic__distance__point_to_point__map_-512.png")),
+          trailing: Icon(Icons.star),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Detalle de mi viaje'),
+                    content: const Text('...'),
+                    actions: <Widget>[
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK')),
+                    ],
+                  );
+                });
+          },
+        )),
+        Card(
+            child: ListTile(
+          title: const Text("Softnet Soluciones"),
+          subtitle: const Text("Total: \$120"),
+          leading: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                  "https://cdn1.iconfinder.com/data/icons/maps-navigation-round-corner/512/map__basic__distance__point_to_point__map_-512.png")),
+          trailing: Icon(Icons.star),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Detalle de mi viaje'),
+                    content: const Text('...'),
+                    actions: <Widget>[
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK')),
+                    ],
+                  );
+                });
+          },
+        )),
+        Card(
+            child: ListTile(
+          title: const Text("Calle Gonzalitos"),
+          subtitle: const Text("Total: \$80"),
+          leading: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                  "https://cdn1.iconfinder.com/data/icons/maps-navigation-round-corner/512/map__basic__distance__point_to_point__map_-512.png")),
+          trailing: const Icon(Icons.star),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Detalle de mi viaje'),
+                    content: const Text('...'),
+                    actions: <Widget>[
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK')),
+                    ],
+                  );
+                });
+          },
+        )),
+        Card(
+            child: ListTile(
+          title: const Text("Carls jr Humberto Lobo"),
+          subtitle: const Text("Total: \$140"),
+          leading: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                  "https://cdn1.iconfinder.com/data/icons/maps-navigation-round-corner/512/map__basic__distance__point_to_point__map_-512.png")),
+          trailing: const Icon(Icons.star),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Detalle de mi viaje'),
+                    content: const Text('...'),
+                    actions: <Widget>[
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK')),
+                    ],
+                  );
+                });
+          },
+        ))
+      ]),
+    );
+  }
+}
+
+/*class MyTrips extends StatelessWidget {
+  const MyTrips({Key? key}) : super(key: key);
   static const String routeName = '/MyTrips';
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: "Mis viajes",
+
       home: MyHomePage(),
     );
 }
@@ -108,6 +221,6 @@ class MyHomePage extends StatelessWidget {
               });
         },))
       ]),
-    );
-  }
-}
+    );*/
+/*  }
+}*/

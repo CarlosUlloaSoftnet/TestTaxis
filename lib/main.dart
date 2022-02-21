@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
+import 'package:test_project/login.dart';
 import 'package:test_project/myTrips.dart';
 import 'package:test_project/navigationDrawer.dart';
 import 'dart:convert' as convert;
@@ -14,33 +15,19 @@ import 'dart:ui' as ui;
 
 import 'Geolocalitation.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class MapHome extends StatelessWidget {
+  const MapHome({Key? key}) : super(key: key);
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-  static const String routeName = '/MyApp';
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      initialRoute: "/",
-      routes: {
-        "/MyTrips": (BuildContext context) => const MyTrips(),
-      },
-      theme: ThemeData(
-         primarySwatch: Colors.orange,
-      ),
-      home: InitMap(),
-    );
+    return const InitMap();
   }
 }
 
 const double CAMERA_ZOOM = 16;
 const double CAMERA_TILT = 80;
 const double CAMERA_BEARING = 30;
-const LatLng SOURCE_LOCATION = LatLng(19.4978, 99.1269);
+const LatLng SOURCE_LOCATION = LatLng(23.634501, -102.552784);
 const LatLng DEST_LOCATION = LatLng(37.335685, -122.0605916);
 
 class InitMap extends StatefulWidget {
@@ -52,17 +39,17 @@ class InitMap extends StatefulWidget {
 class _InitMapState extends State<InitMap> {
   final _scaffKey = GlobalKey<ScaffoldState>();
 
-  Completer<GoogleMapController> _controller = Completer();
-  Set<Marker> _markers = Set<Marker>();
+  final Completer<GoogleMapController> _controller = Completer();
+  final Set<Marker> _markers = <Marker>{};
   LocationData? currentLocation;
   Location? location;
-  LatLng showLocation = LatLng(27.7089427, 85.3086209);
+  LatLng showLocation = const LatLng(27.7089427, 85.3086209);
 
   @override
   void initState() {
     super.initState();
     showPinsOnMap();
-    location = new Location();
+    location = Location();
 
     location!.onLocationChanged.listen((LocationData locationData) {
       currentLocation = locationData;
@@ -87,7 +74,7 @@ class _InitMapState extends State<InitMap> {
   @override
   Widget build(BuildContext context) {
     CameraPosition initialCameraPosition = const CameraPosition(
-        zoom: CAMERA_ZOOM,
+        zoom: 5,
         tilt: CAMERA_TILT,
         bearing: CAMERA_BEARING,
         target: SOURCE_LOCATION);
@@ -155,13 +142,21 @@ class _InitMapState extends State<InitMap> {
                     end: Alignment.bottomRight)),
           ),
           ListTile(
-            leading: Icon(Icons.travel_explore),
-            title: Text("Mis viajes"),
-            selected: true ,
-            onTap: () => {
-              Navigator.pop(context),
-              Navigator.of(context).pushNamed("/MyTrips")
-            }),
+              leading: const Icon(Icons.travel_explore),
+              title: const Text("Mis viajes"),
+              selected: true,
+              onTap: () => {
+                    Navigator.pop(context),
+                    Navigator.of(context).pushNamed("/MyTrips")
+                  }),
+          ListTile(
+              leading: const Icon(Icons.travel_explore),
+              title: const Text("Mi Perfil"),
+              selected: true,
+              onTap: () => {
+                Navigator.pop(context),
+                Navigator.of(context).pushNamed("/Profile")
+              })
         ],
       ),
     );

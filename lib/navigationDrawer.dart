@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/main.dart';
@@ -37,8 +38,8 @@ class navigationDrawer extends StatelessWidget {
   }
   void _showMyHome(BuildContext context){
     final route = MaterialPageRoute(builder: (BuildContext context){
-      return const MyApp();
+      return const MapHome();
     });
     Navigator.of(context).push(route);
   }
-}
+}*/
