@@ -86,41 +86,76 @@ class _InitMapState extends State<InitMap> {
           tilt: CAMERA_TILT,
           bearing: CAMERA_BEARING);
     }
-    return Scaffold(
-      key: _scaffKey,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Taxis"),
-        backgroundColor: Colors.orange,
-      ),
-      drawer: _getDrawer(context),
-      body: GoogleMap(
-        //Map widget from google_maps_flutter package
-        zoomControlsEnabled: false,
-        myLocationEnabled: true,
-        compassEnabled: false,
-        myLocationButtonEnabled: false,
-        tiltGesturesEnabled: false,
-        mapToolbarEnabled: false,
-        markers: _markers.map((e) => e).toSet(),
-        mapType: MapType.normal,
-        initialCameraPosition: initialCameraPosition,
-        onMapCreated: (controller) {
-          //method called when map is created
-          controller.setMapStyle(Utils.mapStyles);
-          _controller.complete(controller);
-          /*setState(() {
-            mapController = controller;
-          });*/
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          updatePinOnMap();
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.navigation),
-      ),
+    return Stack(
+      children: <Widget>[
+        Scaffold(
+          key: _scaffKey,
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text("Taxis"),
+            backgroundColor: Colors.orange,
+          ),
+          drawer: _getDrawer(context),
+          body: GoogleMap(
+            //Map widget from google_maps_flutter package
+            zoomControlsEnabled: false,
+            myLocationEnabled: true,
+            compassEnabled: false,
+            myLocationButtonEnabled: false,
+            tiltGesturesEnabled: false,
+            mapToolbarEnabled: false,
+            markers: _markers.map((e) => e).toSet(),
+            mapType: MapType.normal,
+            initialCameraPosition: initialCameraPosition,
+            onMapCreated: (controller) {
+              //method called when map is created
+              controller.setMapStyle(Utils.mapStyles);
+              _controller.complete(controller);
+              /*setState(() {
+              mapController = controller;
+            });*/
+            },
+          ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 120),
+            child: FloatingActionButton(
+              onPressed: () {
+                updatePinOnMap();
+              },
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.navigation),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SingleChildScrollView(
+            child: Card(
+              color: Colors.white54,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              margin:
+                  const EdgeInsets.only(left: 20, bottom: 20, right: 20, top: 20),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const <Widget>[
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: "A donde vamos?", //hint text
+                        hintStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.orange), //hint text style
+                        labelStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.orange), //label style
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -154,9 +189,9 @@ class _InitMapState extends State<InitMap> {
               title: const Text("Mi Perfil"),
               selected: true,
               onTap: () => {
-                Navigator.pop(context),
-                Navigator.of(context).pushNamed("/Profile")
-              })
+                    Navigator.pop(context),
+                    Navigator.of(context).pushNamed("/Profile")
+                  })
         ],
       ),
     );
