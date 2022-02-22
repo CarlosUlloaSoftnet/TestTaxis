@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -90,31 +89,115 @@ class _InitMapState extends State<InitMap> {
       children: <Widget>[
         Scaffold(
           key: _scaffKey,
-          appBar: AppBar(
+          resizeToAvoidBottomInset: true,
+          /*appBar: AppBar(
             centerTitle: true,
             title: const Text("Taxis"),
             backgroundColor: Colors.orange,
-          ),
+          ),*/
           drawer: _getDrawer(context),
-          body: GoogleMap(
-            //Map widget from google_maps_flutter package
-            zoomControlsEnabled: false,
-            myLocationEnabled: true,
-            compassEnabled: false,
-            myLocationButtonEnabled: false,
-            tiltGesturesEnabled: false,
-            mapToolbarEnabled: false,
-            markers: _markers.map((e) => e).toSet(),
-            mapType: MapType.normal,
-            initialCameraPosition: initialCameraPosition,
-            onMapCreated: (controller) {
-              //method called when map is created
-              controller.setMapStyle(Utils.mapStyles);
-              _controller.complete(controller);
-              /*setState(() {
-              mapController = controller;
-            });*/
-            },
+          body: Stack(
+            children: <Widget>[
+              GoogleMap(
+                //Map widget from google_maps_flutter package
+                zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                compassEnabled: false,
+                myLocationButtonEnabled: false,
+                tiltGesturesEnabled: false,
+                mapToolbarEnabled: false,
+                markers: _markers.map((e) => e).toSet(),
+                mapType: MapType.normal,
+                initialCameraPosition: initialCameraPosition,
+                onMapCreated: (controller) {
+                  //method called when map is created
+                  controller.setMapStyle(Utils.mapStyles);
+                  _controller.complete(controller);
+                  /*setState(() {
+        mapController = controller;
+          });*/
+                },
+              ),
+              Positioned(
+                top: 50,
+                left: 15,
+                child: IconButton(icon: Icon(
+                  Icons.menu,
+                  color: Theme.of(context).primaryColor,
+                  size: 30,
+                ),
+                    onPressed: () {
+                      _scaffKey.currentState?.openDrawer();
+                    }),
+              ),
+              Container(
+                  padding: const EdgeInsets.all(5.0),
+                  alignment: Alignment.bottomCenter,
+                  child: Card(
+                    color: Colors.white54,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    margin: const EdgeInsets.only(
+                        left: 20, bottom: 20, right: 20, top: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 35, vertical: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const <Widget>[
+                          TextField(
+                            decoration: InputDecoration(
+                              hintText: "A donde vamos?", //hint text
+                              hintStyle: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange), //hint text style
+                              labelStyle: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange), //label style
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+              Visibility(
+
+                child: Positioned(
+                    top: 60,
+                    left: MediaQuery.of(context).size.width / 7,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Container(
+                              color: Colors.orange,
+                              child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: RichText(text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                            text: "You\'ll reach your desiation in \n",
+                                            style: TextStyle(fontWeight: FontWeight.w300)
+                                        ),
+                                        TextSpan(
+                                            text: "appState.routeModel?.timeNeeded?.text ?? ",
+                                            style: TextStyle(fontSize: 22)
+                                        ),
+                                      ]
+                                  ))
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
+            ],
           ),
           floatingActionButton: Padding(
             padding: const EdgeInsets.only(bottom: 120),
@@ -127,34 +210,6 @@ class _InitMapState extends State<InitMap> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: SingleChildScrollView(
-            child: Card(
-              color: Colors.white54,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              margin:
-                  const EdgeInsets.only(left: 20, bottom: 20, right: 20, top: 20),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const <Widget>[
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "A donde vamos?", //hint text
-                        hintStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.orange), //hint text style
-                        labelStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.orange), //label style
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        )
       ],
     );
   }
@@ -289,6 +344,15 @@ class _InitMapState extends State<InitMap> {
     });
   }
 
+  Future<void> findPlaces(String placeName) async {
+    if (placeName.length > 1) {
+      var urlPlaces =
+      Uri.parse('https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$placeName&types=establishment&location=37.76999%2C-122.44696&radius=500&key=AIzaSyBrA4fxIyjJRPZnA8wo86Xg1hLWdA85OM4');
+      var response = await http.get(urlPlaces);
+      if (response.statusCode == 200) {}
+    }
+  }
+
   Future<Uint8List> getBytesFromAsset(
       {required String path, required int width}) async {
     ByteData data = await rootBundle.load(path);
@@ -302,164 +366,289 @@ class _InitMapState extends State<InitMap> {
 }
 
 class Utils {
+
   static String mapStyles = '''[
-  {
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#f5f5f5"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#616161"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#f5f5f5"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#bdbdbd"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#eeeeee"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#757575"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#e5e5e5"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#9e9e9e"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#ffffff"
-      }
-    ]
-  },
-  {
-    "featureType": "road.arterial",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#757575"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#dadada"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#616161"
-      }
-    ]
-  },
-  {
-    "featureType": "road.local",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#9e9e9e"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#e5e5e5"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.station",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#eeeeee"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#c9c9c9"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#9e9e9e"
-      }
-    ]
-  }
+    {
+        "featureType": "all",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "color": "#878787"
+            }
+        ]
+    },
+    {
+        "featureType": "all",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "landscape",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#f9f5ed"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            },
+            {
+                "saturation": "0"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.text.stroke",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi",
+        "elementType": "labels.icon",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.attraction",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.business",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.government",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.medical",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.place_of_worship",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.school",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "poi.sports_complex",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#f5f5f5"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
+        "stylers": [
+            {
+                "color": "#c9c9c9"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.arterial",
+        "elementType": "labels.text",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "simplified"
+            }
+        ]
+    },
+    {
+        "featureType": "road.local",
+        "elementType": "geometry",
+        "stylers": [
+            {
+                "visibility": "on"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit",
+        "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.line",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "transit.station",
+        "elementType": "all",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "water",
+        "elementType": "all",
+        "stylers": [
+            {
+                "color": "#aee0f4"
+            }
+        ]
+    }
 ]''';
 }
