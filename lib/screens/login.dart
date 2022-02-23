@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test_project/main.dart';
-import 'package:test_project/myTrips.dart';
-import 'package:test_project/profile.dart';
-import 'package:test_project/register.dart';
+import 'package:test_project/screens/MainMap.dart';
+import 'package:test_project/screens/myTrips.dart';
+import 'package:test_project/screens/profile.dart';
+import 'package:test_project/screens/register.dart';
 
 void main() {
   runApp(const MyApp());

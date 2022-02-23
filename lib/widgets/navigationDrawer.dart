@@ -1,7 +1,7 @@
 /*
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test_project/main.dart';
+import 'package:test_project/MainMap.dart';
 import 'package:test_project/myTrips.dart';
 import 'package:test_project/routes/pageroutes.dart';
 

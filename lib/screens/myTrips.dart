@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'navigationDrawer.dart';
+import '../widgets/navigationDrawer.dart';
 
 class MyTrips extends StatelessWidget {
   const MyTrips({Key? key}) : super(key: key);

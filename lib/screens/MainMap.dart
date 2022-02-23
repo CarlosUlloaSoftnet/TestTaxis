@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
-import 'package:test_project/login.dart';
-import 'package:test_project/myTrips.dart';
-import 'package:test_project/navigationDrawer.dart';
+import 'package:test_project/screens/login.dart';
+import 'package:test_project/screens/myTrips.dart';
+import 'package:test_project/widgets/navigationDrawer.dart';
 import 'dart:convert' as convert;
 import 'dart:ui' as ui;
 
-import 'Geolocalitation.dart';
+import '../Models/Geolocalitation.dart';
 
 class MapHome extends StatelessWidget {
   const MapHome({Key? key}) : super(key: key);
