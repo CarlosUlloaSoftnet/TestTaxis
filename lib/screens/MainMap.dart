@@ -4,17 +4,295 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
-import 'package:test_project/screens/login.dart';
-import 'package:test_project/screens/myTrips.dart';
-import 'package:test_project/widgets/navigationDrawer.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert' as convert;
 import 'dart:ui' as ui;
 
 import '../Models/Geolocalitation.dart';
+import '../helpers/constants.dart';
+import '../helpers/style.dart';
+import '../providers/app_state.dart';
+import '../widgets/destination_selection.dart';
+import '../widgets/driver_found.dart';
+import '../widgets/loading.dart';
+import '../widgets/payment_method_selection.dart';
+import '../widgets/pickup_destination_widget.dart';
+import '../widgets/trip_draggable.dart';
 
-class MapHome extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var scaffoldState = GlobalKey<ScaffoldState>();
+  @override
+  Widget build(BuildContext context) {
+    AppStateProvider appState = Provider.of<AppStateProvider>(context);
+    return SafeArea(
+      child: Scaffold(
+        key: scaffoldState,
+        drawer: Drawer(
+          child: ListView(
+            children: <Widget>[
+              const UserAccountsDrawerHeader(
+                accountName: Text("Carlos Ulloa"),
+                accountEmail: Text("CarlosUlloa@Softnet.mx"),
+                currentAccountPicture: CircleAvatar(
+                    radius: 50.0,
+                    backgroundColor: Color(0xFF778899),
+                    backgroundImage: NetworkImage(
+                        "https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png")),
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Colors.orange, Colors.white],
+                        end: Alignment.bottomRight)),
+              ),
+              ListTile(
+                  leading: const Icon(Icons.travel_explore),
+                  title: const Text("Mis viajes"),
+                  selected: true,
+                  onTap: () => {
+                    Navigator.pop(context),
+                    Navigator.of(context).pushNamed("/MyTrips")
+                  }),
+              ListTile(
+                  leading: const Icon(Icons.travel_explore),
+                  title: const Text("Mi Perfil"),
+                  selected: true,
+                  onTap: () => {
+                    Navigator.pop(context),
+                    Navigator.of(context).pushNamed("/Profile")
+                  })
+            ],
+          ),
+            ),
+        body: Stack(
+          children: [
+            MapScreen(scaffoldState),
+            Visibility(
+              visible: appState.show == Show.DRIVER_FOUND,
+              child: Positioned(
+                  top: 60,
+                  left: 15,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: appState.driverArrived ? Container(
+                            color: green,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                "Meet driver at the pick up location",
+                                style: TextStyle(color: Colors.white),
+                            ),),
+                          ) : Container(
+                            color: primary,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child:Text(
+                                "Conozca al conductor en el lugar de recogida",
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ),
+            Visibility(
+              visible: appState.show == Show.TRIP,
+              child: Positioned(
+                  top: 60,
+                  left: MediaQuery.of(context).size.width / 7,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Container(
+                            color: primary,
+                            child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: RichText(text: TextSpan(
+                                    children: [
+                                      TextSpan(
+                                          text: "You\'ll reach your desiation in \n",
+                                          style: TextStyle(fontWeight: FontWeight.w300)
+                                      ),
+                                      TextSpan(
+                                          text:  "appState.routeModel?.timeNeeded?.text ??",
+                                          style: TextStyle(fontSize: 22)
+                                      ),
+                                    ]
+                                ))
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ),
+            // ANCHOR Draggable
+            Visibility(
+                visible: appState.show == Show.DESTINATION_SELECTION,
+                child: DestinationSelectionWidget()),
+            // ANCHOR PICK UP WIDGET
+            Visibility(
+              visible: appState.show == Show.PICKUP_SELECTION,
+              child: PickupSelectionWidget(
+                scaffoldState: scaffoldState,
+              ),
+            ),
+            //  ANCHOR Draggable PAYMENT METHOD
+            Visibility(
+                visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
+                child: PaymentMethodSelectionWidget(
+                  scaffoldState: scaffoldState,
+                )),
+            //  ANCHOR Draggable DRIVER
+            Visibility(
+                visible: appState.show == Show.DRIVER_FOUND,
+                child: DriverFoundWidget()),
+
+            //  ANCHOR Draggable DRIVER
+            Visibility(
+                visible: appState.show == Show.TRIP,
+                child: TripWidget()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MapScreen extends StatefulWidget {
+  final GlobalKey<ScaffoldState> scaffoldState;
+
+  MapScreen(this.scaffoldState);
+
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  late GoogleMapsPlaces googlePlaces;
+  TextEditingController destinationController = TextEditingController();
+  Color darkBlue = Colors.black;
+  Color grey = Colors.grey;
+  GlobalKey<ScaffoldState> scaffoldSate = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    scaffoldSate = widget.scaffoldState;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppStateProvider appState = Provider.of<AppStateProvider>(context);
+    // UserProvider userProvider = Provider.of<UserProvider>(context);
+
+    return appState.center == null
+        ? Loading()
+        : Stack(
+      children: <Widget>[
+        GoogleMap(
+          initialCameraPosition:
+          CameraPosition(target: appState.center, zoom: 15),
+          onMapCreated: appState.onCreate,
+          myLocationEnabled: true,
+          mapType: MapType.normal,
+          compassEnabled: true,
+          rotateGesturesEnabled: true,
+          markers: appState.markers,
+          onCameraMove: appState.onCameraMove,
+          polylines: appState.poly,
+        ),
+        Positioned(
+          top: 10,
+          left: 15,
+          child: IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: primary,
+                size: 30,
+              ),
+              onPressed: () {
+                scaffoldSate.currentState?.openDrawer();
+              }),
+        ),
+//              Positioned(
+//                bottom: 60,
+//                right: 0,
+//                left: 0,
+//                height: 60,
+//                child: Visibility(
+//                  visible: appState.routeModel != null,
+//                  child: Padding(
+//                    padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+//                    child: Container(
+//                      color: Colors.white,
+//                      child: Row(
+//                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                        children: <Widget>[
+//                          FlatButton.icon(
+//                              onPressed: null,
+//                              icon: Icon(Icons.timer),
+//                              label: Text(
+//                                  appState.routeModel?.timeNeeded?.text ?? "")),
+//                          FlatButton.icon(
+//                              onPressed: null,
+//                              icon: Icon(Icons.flag),
+//                              label: Text(
+//                                  appState.routeModel?.distance?.text ?? "")),
+//                          FlatButton(
+//                              onPressed: () {},
+//                              child: CustomText(
+//                                text:
+//                                    "\$${appState.routeModel?.distance?.value == null ? 0 : appState.routeModel?.distance?.value / 500}" ??
+//                                        "",
+//                                color: Colors.deepOrange,
+//                              ))
+//                        ],
+//                      ),
+//                    ),
+//                  ),
+//                ),
+//              ),
+      ],
+    );
+  }
+
+  Future<Null> displayPrediction(Prediction p) async {
+    if (p != null) {
+      // PlacesDetailsResponse detail =
+      // await places.getDetailsByPlaceId(p.placeId);
+
+      var placeId = p.placeId;
+      // double lat = detail.result.geometry.location.lat;
+      // double lng = detail.result.geometry.location.lng;
+
+      // var address = await Geocoder.local.findAddressesFromQuery(p.description);
+
+      // print(lat);
+      // print(lng);
+    }
+  }
+}
+
+
+/*class MapHome extends StatelessWidget {
   const MapHome({Key? key}) : super(key: key);
 
   @override
@@ -33,9 +311,9 @@ class InitMap extends StatefulWidget {
   const InitMap({Key? key}) : super(key: key);
   @override
   _InitMapState createState() => _InitMapState();
-}
+}*/
 
-class _InitMapState extends State<InitMap> {
+/*class _InitMapState extends State<InitMap> {
   final _scaffKey = GlobalKey<ScaffoldState>();
 
   final Completer<GoogleMapController> _controller = Completer();
@@ -62,10 +340,10 @@ class _InitMapState extends State<InitMap> {
     currentLocation = await location!.getLocation();
 
     // hard-coded destination for this example
-    /*destinationLocation = LocationData.fromMap({
+    *//*destinationLocation = LocationData.fromMap({
       "latitude": DEST_LOCATION.latitude,
       "longitude": DEST_LOCATION.longitude
-    });*/
+    });*//*
 
     updatePinOnMap();
   }
@@ -90,11 +368,11 @@ class _InitMapState extends State<InitMap> {
         Scaffold(
           key: _scaffKey,
           resizeToAvoidBottomInset: true,
-          /*appBar: AppBar(
+          *//*appBar: AppBar(
             centerTitle: true,
             title: const Text("Taxis"),
             backgroundColor: Colors.orange,
-          ),*/
+          ),*//*
           drawer: _getDrawer(context),
           body: Stack(
             children: <Widget>[
@@ -113,9 +391,9 @@ class _InitMapState extends State<InitMap> {
                   //method called when map is created
                   controller.setMapStyle(Utils.mapStyles);
                   _controller.complete(controller);
-                  /*setState(() {
+                  *//*setState(() {
         mapController = controller;
-          });*/
+          });*//*
                 },
               ),
               Positioned(
@@ -278,10 +556,10 @@ class _InitMapState extends State<InitMap> {
             infoWindow: InfoWindow(title: "Taxi : ${data.id}"),
             position: position,
             onTap: () {
-              /*setState(() {
+              *//*setState(() {
             currentlySelectedPin = sourcePinInfo;
             pinPillPosition = 0;
-          });*/
+          });*//*
             },
             icon: BitmapDescriptor.fromBytes(customMarker),
           ));
@@ -290,20 +568,20 @@ class _InitMapState extends State<InitMap> {
     } catch (e) {
       print("Error Catch : $e");
     }
-    /*var pinPosition =
+    *//*var pinPosition =
     LatLng(currentLocation!.latitude!, currentLocation!.longitude!);
 
     _markers.add(Marker(
         markerId: MarkerId('myPin'),
         position: pinPosition,
         onTap: () {
-          */ /*setState(() {
+          *//* *//*setState(() {
             currentlySelectedPin = sourcePinInfo;
             pinPillPosition = 0;
-          });*/ /*
+          });*//* *//*
         },
         icon: BitmapDescriptor.defaultMarker));
-    //CONSULTAR API Y OBTENER LATITUDES Y LONGITUDES CON UN FOREACH*/
+    //CONSULTAR API Y OBTENER LATITUDES Y LONGITUDES CON UN FOREACH*//*
   }
 
   void updatePinOnMap() async {
@@ -323,24 +601,24 @@ class _InitMapState extends State<InitMap> {
     // that a widget update is due
     setState(() {
       // updated position
-      /* var pinPosition =
-      LatLng(currentLocation!.latitude!, currentLocation!.longitude!);*/
+      *//* var pinPosition =
+      LatLng(currentLocation!.latitude!, currentLocation!.longitude!);*//*
 
       // sourcePinInfo.location = pinPosition;
 
       // the trick is to remove the marker (by id)
       // and add it again at the updated location
-      /*_markers.removeWhere((m) => m.markerId.value == 'sourcePin');
+      *//*_markers.removeWhere((m) => m.markerId.value == 'sourcePin');
       _markers.add(Marker(
           markerId: MarkerId('sourcePin'),
-          */ /*onTap: () {
+          *//* *//*onTap: () {
             setState(() {
               currentlySelectedPin = sourcePinInfo;
               pinPillPosition = 0;
             });
-          },*/ /*
+          },*//* *//*
           position: pinPosition, // updated position
-          icon: BitmapDescriptor.defaultMarker));*/
+          icon: BitmapDescriptor.defaultMarker));*//*
     });
   }
 
@@ -363,7 +641,7 @@ class _InitMapState extends State<InitMap> {
         .buffer
         .asUint8List();
   }
-}
+}*/
 
 class Utils {
 

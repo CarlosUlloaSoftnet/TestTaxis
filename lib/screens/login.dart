@@ -7,33 +7,7 @@ import 'package:test_project/screens/myTrips.dart';
 import 'package:test_project/screens/profile.dart';
 import 'package:test_project/screens/register.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-  static const String routeName = '/MyApp';
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      initialRoute: "/",
-      routes: {
-        "/MyTrips": (BuildContext context) => const MyTrips(),
-        "/MapHome": (BuildContext context) => const MapHome(),
-        "/LoginPage": (BuildContext context) => const LoginPage(),
-        "/Register": (BuildContext context) => const Register(),
-        "/Profile": (BuildContext context) => const Profile(),
-      },
-      theme: ThemeData(
-          brightness: Brightness.light,
-          primaryColor: Colors.orange,
-          secondaryHeaderColor: Colors.white),
-      home: LoginPage(),
-    );
-  }
-}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
