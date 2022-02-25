@@ -50,10 +50,11 @@ class TripWidget extends StatelessWidget {
                 Divider(),
                 ListTile(
                   leading: Container(
-                    child:appState.driverModel?.phone  == null ? CircleAvatar(
-                      radius: 30,
-                      child: Icon(Icons.person_outline, size: 25,),
-                    ) : CircleAvatar(
+                    // appState.driverModel?.phone  == null ? CircleAvatar(
+                    //   radius: 30,
+                    //   child: Icon(Icons.person_outline, size: 25,),
+                    // ) :
+                    child:CircleAvatar(
                       radius: 30,
                       backgroundImage: NetworkImage("http://www.toyocosta.com/blog/wp-content/uploads/2014/04/www.sienteamerica.com_.jpg"),
                     ),
@@ -68,7 +69,8 @@ class TripWidget extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 17, fontWeight: FontWeight.bold)),
                             TextSpan(
-                                text: appState.driverModel.car,
+                                // text: appState.driverModel.car,
+                                text: "Mustang GT",
                                 style: TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.w300)),
                           ], style: TextStyle(color: black))),

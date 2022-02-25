@@ -49,14 +49,16 @@ class AppStateProvider with ChangeNotifier {
   late GoogleMapController _mapController;
 
   // Geoflutterfire geo = Geoflutterfire();
-  static late LatLng _center = LatLng(23.634501, -102.552784);
+  static LatLng? _center;
   Location? location = Location();
-  LatLng _lastPosition = _center;
+  LatLng? _lastPosition = _center;
   TextEditingController pickupLocationController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   LocationData? position;
   DriverService _driverService = DriverService();
 
+  double initialSize = 0.2;
+  double sizeDriver = 0.2;
   //  draggable to show
   Show show = Show.DESTINATION_SELECTION;
 
@@ -66,9 +68,9 @@ class AppStateProvider with ChangeNotifier {
   //   location pin
   late BitmapDescriptor locationPin;
 
-  LatLng get center => _center;
+  LatLng? get center => _center;
 
-  LatLng get lastPosition => _lastPosition;
+  LatLng? get lastPosition => _lastPosition;
 
   Set<Marker> get markers => _markers;
 
@@ -111,11 +113,19 @@ class AppStateProvider with ChangeNotifier {
 
   AppStateProvider() {
     _setCustomMapPin();
-    _getUserLocation();
+
     _listemToDrivers();
-    location?.onLocationChanged.listen((LocationData location) {
-      position = location;
-    });
+    // location?.onLocationChanged.listen((LocationData location) {
+    //   position = location;
+    //   notifyListeners();
+    // });
+    _getUserLocation();
+  }
+
+  setSize(double sizeDriver, double initialSize){
+    this.sizeDriver = sizeDriver;
+    this.initialSize = initialSize;
+    notifyListeners();
   }
 
   _setCustomMapPin() async {
@@ -126,13 +136,19 @@ class AppStateProvider with ChangeNotifier {
         const ImageConfiguration(devicePixelRatio: 2.5), 'images/pin.png');
   }
 
-  Future<LocationData?> _getUserLocation() async {
-    position = location?.getLocation() as LocationData?;
+  void _getUserLocation() async {
+    position = await location!.getLocation();
     if (position != null) {
       _center = LatLng(position!.latitude!, position!.longitude!);
+      /*CameraPosition cPosition = CameraPosition(
+        zoom: 5,
+        tilt: 80,
+        bearing: 30,
+        target: LatLng(position!.latitude!, position!.longitude!),
+      );
+      _mapController.animateCamera(CameraUpdate.newCameraPosition(cPosition));*/
       notifyListeners();
     }
-    return position;
   }
 
   //CONSUMIR SERVICIOS API PARA OBETENER LA LISTA DE CONDUCTORES

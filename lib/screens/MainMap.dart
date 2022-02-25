@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         key: scaffoldState,
+        resizeToAvoidBottomInset: false,
         drawer: Drawer(
           child: ListView(
             children: <Widget>[
@@ -58,25 +59,26 @@ class _MyHomePageState extends State<MyHomePage> {
                   title: const Text("Mis viajes"),
                   selected: true,
                   onTap: () => {
-                    Navigator.pop(context),
-                    Navigator.of(context).pushNamed("/MyTrips")
-                  }),
+                        Navigator.pop(context),
+                        Navigator.of(context).pushNamed("/MyTrips")
+                      }),
               ListTile(
                   leading: const Icon(Icons.travel_explore),
                   title: const Text("Mi Perfil"),
                   selected: true,
                   onTap: () => {
-                    Navigator.pop(context),
-                    Navigator.of(context).pushNamed("/Profile")
-                  })
+                        Navigator.pop(context),
+                        Navigator.of(context).pushNamed("/Profile")
+                      })
             ],
           ),
-            ),
+        ),
         body: Stack(
           children: [
             MapScreen(scaffoldState),
             Visibility(
-              visible: appState.show == Show.DRIVER_FOUND,
+              visible: false,
+              // visible: appState.show == Show.DRIVER_FOUND,
               child: Positioned(
                   top: 60,
                   left: 15,
@@ -86,31 +88,38 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          child: appState.driverArrived ? Container(
-                            color: green,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Text(
-                                "Meet driver at the pick up location",
-                                style: TextStyle(color: Colors.white),
-                            ),),
-                          ) : Container(
-                            color: primary,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child:Text(
-                                "Conozca al conductor en el lugar de recogida",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                          ),
+                          child: appState.driverArrived
+                              ? Container(
+                                  // child: appState.driverArrived ? Container(
+                                  color: green,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text(
+                                      "Reunace con el conductor en el punto de encuentro",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  color: primary,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text(
+                                      "Conozca al conductor en el lugar de recogida",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ),
+                                ),
                         ),
                       ],
                     ),
                   )),
             ),
             Visibility(
-              visible: appState.show == Show.TRIP,
+              visible: false,
+              // visible: appState.show == Show.TRIP,
               child: Positioned(
                   top: 60,
                   left: MediaQuery.of(context).size.width / 7,
@@ -124,19 +133,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             color: primary,
                             child: Padding(
                                 padding: const EdgeInsets.all(16),
-                                child: RichText(text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                          text: "You\'ll reach your desiation in \n",
-                                          style: TextStyle(fontWeight: FontWeight.w300)
-                                      ),
-                                      TextSpan(
-                                          text:  "appState.routeModel?.timeNeeded?.text ??",
-                                          style: TextStyle(fontSize: 22)
-                                      ),
-                                    ]
-                                ))
-                            ),
+                                child: RichText(
+                                    text: TextSpan(children: [
+                                  TextSpan(
+                                      text: "Llegará a tu destino en \n",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300)),
+                                  TextSpan(
+                                      text: "30 minutos",
+                                      // text:  "appState.routeModel?.timeNeeded?.text ??",
+                                      style: TextStyle(fontSize: 22)),
+                                ]))),
                           ),
                         ),
                       ],
@@ -145,29 +152,34 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             // ANCHOR Draggable
             Visibility(
-                visible: appState.show == Show.DESTINATION_SELECTION,
-                child: DestinationSelectionWidget()),
+                visible: true,
+                // visible: appState.show == Show.DESTINATION_SELECTION,
+                child: DestinationWidget()),
             // ANCHOR PICK UP WIDGET
             Visibility(
-              visible: appState.show == Show.PICKUP_SELECTION,
+              visible: false,
+              // visible: appState.show == Show.PICKUP_SELECTION,
               child: PickupSelectionWidget(
                 scaffoldState: scaffoldState,
               ),
             ),
             //  ANCHOR Draggable PAYMENT METHOD
             Visibility(
-                visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
+                visible: false,
+                // visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
                 child: PaymentMethodSelectionWidget(
                   scaffoldState: scaffoldState,
                 )),
             //  ANCHOR Draggable DRIVER
             Visibility(
-                visible: appState.show == Show.DRIVER_FOUND,
+                visible: false,
+                // visible: appState.show == Show.DRIVER_FOUND,
                 child: DriverFoundWidget()),
 
             //  ANCHOR Draggable DRIVER
             Visibility(
-                visible: appState.show == Show.TRIP,
+                visible: false,
+                // visible: appState.show == Show.TRIP,
                 child: TripWidget()),
           ],
         ),
@@ -206,32 +218,34 @@ class _MapScreenState extends State<MapScreen> {
     return appState.center == null
         ? Loading()
         : Stack(
-      children: <Widget>[
-        GoogleMap(
-          initialCameraPosition:
-          CameraPosition(target: appState.center, zoom: 15),
-          onMapCreated: appState.onCreate,
-          myLocationEnabled: true,
-          mapType: MapType.normal,
-          compassEnabled: true,
-          rotateGesturesEnabled: true,
-          markers: appState.markers,
-          onCameraMove: appState.onCameraMove,
-          polylines: appState.poly,
-        ),
-        Positioned(
-          top: 10,
-          left: 15,
-          child: IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: primary,
-                size: 30,
+            children: <Widget>[
+              GoogleMap(
+                initialCameraPosition:
+                    CameraPosition(target: appState.center!, zoom: 15),
+
+                onMapCreated: appState.onCreate,
+                zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                compassEnabled: false,
+                mapType: MapType.normal,
+                rotateGesturesEnabled: true,
+                markers: appState.markers,
+                onCameraMove: appState.onCameraMove,
+                polylines: appState.poly,
               ),
-              onPressed: () {
-                scaffoldSate.currentState?.openDrawer();
-              }),
-        ),
+              Positioned(
+                top: 10,
+                left: 15,
+                child: IconButton(
+                    icon: Icon(
+                      Icons.menu,
+                      color: primary,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      scaffoldSate.currentState?.openDrawer();
+                    }),
+              ),
 //              Positioned(
 //                bottom: 60,
 //                right: 0,
@@ -270,8 +284,8 @@ class _MapScreenState extends State<MapScreen> {
 //                  ),
 //                ),
 //              ),
-      ],
-    );
+            ],
+          );
   }
 
   Future<Null> displayPrediction(Prediction p) async {
@@ -290,7 +304,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 }
-
 
 /*class MapHome extends StatelessWidget {
   const MapHome({Key? key}) : super(key: key);
@@ -340,10 +353,10 @@ class InitMap extends StatefulWidget {
     currentLocation = await location!.getLocation();
 
     // hard-coded destination for this example
-    *//*destinationLocation = LocationData.fromMap({
+    */ /*destinationLocation = LocationData.fromMap({
       "latitude": DEST_LOCATION.latitude,
       "longitude": DEST_LOCATION.longitude
-    });*//*
+    });*/ /*
 
     updatePinOnMap();
   }
@@ -368,11 +381,11 @@ class InitMap extends StatefulWidget {
         Scaffold(
           key: _scaffKey,
           resizeToAvoidBottomInset: true,
-          *//*appBar: AppBar(
+          */ /*appBar: AppBar(
             centerTitle: true,
             title: const Text("Taxis"),
             backgroundColor: Colors.orange,
-          ),*//*
+          ),*/ /*
           drawer: _getDrawer(context),
           body: Stack(
             children: <Widget>[
@@ -391,9 +404,9 @@ class InitMap extends StatefulWidget {
                   //method called when map is created
                   controller.setMapStyle(Utils.mapStyles);
                   _controller.complete(controller);
-                  *//*setState(() {
+                  */ /*setState(() {
         mapController = controller;
-          });*//*
+          });*/ /*
                 },
               ),
               Positioned(
@@ -556,10 +569,10 @@ class InitMap extends StatefulWidget {
             infoWindow: InfoWindow(title: "Taxi : ${data.id}"),
             position: position,
             onTap: () {
-              *//*setState(() {
+              */ /*setState(() {
             currentlySelectedPin = sourcePinInfo;
             pinPillPosition = 0;
-          });*//*
+          });*/ /*
             },
             icon: BitmapDescriptor.fromBytes(customMarker),
           ));
@@ -568,20 +581,20 @@ class InitMap extends StatefulWidget {
     } catch (e) {
       print("Error Catch : $e");
     }
-    *//*var pinPosition =
+    */ /*var pinPosition =
     LatLng(currentLocation!.latitude!, currentLocation!.longitude!);
 
     _markers.add(Marker(
         markerId: MarkerId('myPin'),
         position: pinPosition,
         onTap: () {
-          *//* *//*setState(() {
+          */ /* */ /*setState(() {
             currentlySelectedPin = sourcePinInfo;
             pinPillPosition = 0;
-          });*//* *//*
+          });*/ /* */ /*
         },
         icon: BitmapDescriptor.defaultMarker));
-    //CONSULTAR API Y OBTENER LATITUDES Y LONGITUDES CON UN FOREACH*//*
+    //CONSULTAR API Y OBTENER LATITUDES Y LONGITUDES CON UN FOREACH*/ /*
   }
 
   void updatePinOnMap() async {
@@ -601,24 +614,24 @@ class InitMap extends StatefulWidget {
     // that a widget update is due
     setState(() {
       // updated position
-      *//* var pinPosition =
-      LatLng(currentLocation!.latitude!, currentLocation!.longitude!);*//*
+      */ /* var pinPosition =
+      LatLng(currentLocation!.latitude!, currentLocation!.longitude!);*/ /*
 
       // sourcePinInfo.location = pinPosition;
 
       // the trick is to remove the marker (by id)
       // and add it again at the updated location
-      *//*_markers.removeWhere((m) => m.markerId.value == 'sourcePin');
+      */ /*_markers.removeWhere((m) => m.markerId.value == 'sourcePin');
       _markers.add(Marker(
           markerId: MarkerId('sourcePin'),
-          *//* *//*onTap: () {
+          */ /* */ /*onTap: () {
             setState(() {
               currentlySelectedPin = sourcePinInfo;
               pinPillPosition = 0;
             });
-          },*//* *//*
+          },*/ /* */ /*
           position: pinPosition, // updated position
-          icon: BitmapDescriptor.defaultMarker));*//*
+          icon: BitmapDescriptor.defaultMarker));*/ /*
     });
   }
 
@@ -644,7 +657,6 @@ class InitMap extends StatefulWidget {
 }*/
 
 class Utils {
-
   static String mapStyles = '''[
     {
         "featureType": "all",

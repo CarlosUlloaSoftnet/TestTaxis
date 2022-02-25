@@ -7,6 +7,8 @@ import '../providers/app_state.dart';
 import '../services/calls_sms.dart';
 
 class DriverFoundWidget extends StatelessWidget {
+  const DriverFoundWidget({Key? key}) : super(key: key);
+
   // final CallsAndMessagesService _service = locator<CallsAndMessagesService>();
 
   @override
@@ -15,8 +17,8 @@ class DriverFoundWidget extends StatelessWidget {
 
     return DraggableScrollableSheet(
         initialChildSize: 0.2,
-        minChildSize: 0.05,
-        maxChildSize: 0.8,
+        minChildSize: 0.17,
+        maxChildSize: 0.55,
         builder: (BuildContext context, myscrollController) {
           return Container(
             decoration: BoxDecoration(color: white,
@@ -26,23 +28,23 @@ class DriverFoundWidget extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                       color: grey.withOpacity(.8),
-                      offset: Offset(3, 2),
+                      offset: const Offset(3, 2),
                       blurRadius: 7)
                 ]),
             child: ListView(
               controller: myscrollController,
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 12,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                        child: appState.driverArrived == false ? Text(
-                          'Your ride arrives in appState.routeModel.timeNeeded.text',
+                        child: appState.driverArrived == false ? const Text(
+                          'Llegara en 30 min',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300,),
-                        ) : Text(
+                        ) : const Text(
                           'Your ride has arrived',
                           style: TextStyle(fontSize: 12, color: green, fontWeight: FontWeight.w500),
                         )
@@ -52,10 +54,12 @@ class DriverFoundWidget extends StatelessWidget {
                 Divider(),
                 ListTile(
                   leading: Container(
-                    child:appState.driverModel?.phone  == null ? CircleAvatar(
-                      radius: 30,
-                      child: Icon(Icons.person_outline, size: 25,),
-                    ) : CircleAvatar(
+                    // child:appState.driverModel?.phone  == null ? CircleAvatar(
+                    // child:appState.driverModel?.phone  == null ? CircleAvatar(
+                    //   radius: 30,
+                    //   child: Icon(Icons.person_outline, size: 25,),
+                    // ) :
+                    child:const CircleAvatar(
                       radius: 30,
                       backgroundImage: NetworkImage("http://www.toyocosta.com/blog/wp-content/uploads/2014/04/www.sienteamerica.com_.jpg"),
                     ),
@@ -64,22 +68,23 @@ class DriverFoundWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       RichText(
-                          text: TextSpan(children: [
+                          text: const TextSpan(children: [
                             TextSpan(
-                                text: "NOMBRE DEL CONDUCTOR" + "\n",
+                                text: "Carlos Ulloa" + "\n",
                                 style: TextStyle(
                                     fontSize: 17, fontWeight: FontWeight.bold)),
                             TextSpan(
-                                text: appState.driverModel.car,
+                                text: "Mustang GT",
+                                // text: appState.driverModel.car,
                                 style: TextStyle(
                                     fontSize: 14, fontWeight: FontWeight.w300)),
                           ], style: TextStyle(color: black))),
                     ],
                   ),
-                  subtitle: RaisedButton(
-                      color: Colors.grey.withOpacity(0.5),
+                  subtitle: ElevatedButton(
+                    style: ElevatedButton.styleFrom(primary: Colors.grey.withOpacity(0.5)),
                       onPressed: null,
-                      child: Text("Marca del vehiculo",
+                      child: const Text("Ford",
                         style: TextStyle(color: white),
                       )),
                   trailing: Container(
@@ -90,27 +95,27 @@ class DriverFoundWidget extends StatelessWidget {
                         onPressed: () {
                           // _service.call(appState.driverModel.phone);
                         },
-                        icon: Icon(Icons.call),
+                        icon: const Icon(Icons.call),
                       )),
                 ),
-                Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text("Ride details",
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text("Detalle",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Container(
+                    SizedBox(
                       height: 100,
                       width: 10,
                       child: Column(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.location_on,
                             color: grey,
                           ),
@@ -126,42 +131,42 @@ class DriverFoundWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 30,
                     ),
                     RichText(
-                        text: TextSpan(children: [
+                        text: const TextSpan(children: [
                           TextSpan(
-                              text: "\nPick up location \n",
+                              text: "\nUbicación del conductor \n",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           TextSpan(
-                              text: "25th avenue, flutter street \n\n\n",
+                              text: "Av. Félix U. Gómez \n\n\n",
                               style: TextStyle(
                                   fontWeight: FontWeight.w300, fontSize: 16)),
                           TextSpan(
-                              text: "Destination \n",
+                              text: "Destino \n",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           TextSpan(
-                              text: "25th avenue, flutter street \n",
+                              text: "Av. Benito Juárez \n",
                               style: TextStyle(
                                   fontWeight: FontWeight.w300, fontSize: 16)),
                         ], style: TextStyle(color: black))),
                   ],
                 ),
-                Divider(),
+                const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+                  children: const [
                     Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text("Ride price",
+                      padding: EdgeInsets.all(12),
+                      child: Text("Total del viaje",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
                       child: Text("\$100",
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
                       ),
@@ -170,10 +175,10 @@ class DriverFoundWidget extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12),
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     onPressed: () {},
-                    color: red,
-                    child: Text("Cancel Ride",
+                    style: ElevatedButton.styleFrom(primary: red, ),
+                    child: Text("Cancelar viaje",
                       style: TextStyle(color: white)
                     ),
                   ),

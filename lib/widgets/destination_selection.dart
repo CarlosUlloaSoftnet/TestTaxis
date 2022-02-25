@@ -1,23 +1,36 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../helpers/constants.dart';
 import '../helpers/style.dart';
 import '../providers/app_state.dart';
 
-class DestinationSelectionWidget extends StatelessWidget {
+class DestinationWidget extends StatefulWidget {
+  const DestinationWidget({Key? key}) : super(key: key);
+
+  @override
+  DestinationSelectionWidget createState() => DestinationSelectionWidget();
+}
+
+class DestinationSelectionWidget extends State<DestinationWidget> {
+
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
+    KeyboardVisibilityController().onChange.listen((isVisible) {
+      if(isVisible){
+        appState.setSize(0.50, 0.45);
+      }else{
+        appState.setSize(0.2,0.2);
+      }
+
+    });
     return DraggableScrollableSheet(
-      initialChildSize: 0.28,
-      minChildSize: 0.28,
+      initialChildSize: appState.sizeDriver,
+      minChildSize: appState.sizeDriver,
+      maxChildSize: 0.70,
       builder: (BuildContext context, myscrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -26,7 +39,7 @@ class DestinationSelectionWidget extends StatelessWidget {
                   topLeft: Radius.circular(20), topRight: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
-                    color: grey.withOpacity(.8),
+                    color: Colors.orange.withOpacity(.8),
                     offset: Offset(3, 2),
                     blurRadius: 7)
               ]),
@@ -41,8 +54,8 @@ class DestinationSelectionWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 child: Container(
-                  color: grey.withOpacity(.3),
-                  child: TextField(
+                  // color: grey.withOpacity(.3),
+                  child: TextFormField(
                     onTap: () async {
                       SharedPreferences preferences =
                       await SharedPreferences.getInstance();
@@ -64,7 +77,8 @@ class DestinationSelectionWidget extends StatelessWidget {
                       /*appState.updateDestination(destination: p.description);
                       LatLng coordinates = LatLng(lat, lng);*/
                       // appState.setDestination(coordinates: coordinates);
-                      appState.addPickupMarker(appState.center);
+                      appState.addPickupMarker(appState.center!);
+
                       appState.changeWidgetShowed(
                           showWidget: Show.PICKUP_SELECTION);
                       // appState.sendRequest(coordinates: coordinates);
@@ -79,15 +93,16 @@ class DestinationSelectionWidget extends StatelessWidget {
                         height: 10,
                         child: Icon(
                           Icons.location_on,
-                          color: primary,
+                          color: Colors.orange,
                         ),
                       ),
-                      hintText: "Where to go?",
+                      hintText: "A donde vamos?",
                       hintStyle: TextStyle(
-                          color: black,
+                          color: Colors.orange,
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
-                      border: InputBorder.none,
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color:Colors.orange)),
                       contentPadding: EdgeInsets.all(15),
                     ),
                   ),
@@ -101,8 +116,8 @@ class DestinationSelectionWidget extends StatelessWidget {
                     color: white,
                   ),
                 ),
-                title: Text("Home"),
-                subtitle: Text("25th avenue, 23 street"),
+                title: Text("Casa"),
+                subtitle: Text("Mariano de abasolo"),
               ),
               ListTile(
                 leading: CircleAvatar(
@@ -112,8 +127,8 @@ class DestinationSelectionWidget extends StatelessWidget {
                     color: white,
                   ),
                 ),
-                title: Text("Work"),
-                subtitle: Text("25th avenue, 23 street"),
+                title: Text("Trabajo"),
+                subtitle: Text("Sayula 215"),
               ),
               ListTile(
                 leading: CircleAvatar(
@@ -123,8 +138,8 @@ class DestinationSelectionWidget extends StatelessWidget {
                     color: primary,
                   ),
                 ),
-                title: Text("Recent location"),
-                subtitle: Text("25th avenue, 23 street"),
+                title: Text("Dirección recinente"),
+                subtitle: Text("Av. Félix U. Gómez"),
               ),
               ListTile(
                 leading: CircleAvatar(
@@ -134,8 +149,8 @@ class DestinationSelectionWidget extends StatelessWidget {
                     color: primary,
                   ),
                 ),
-                title: Text("Recent location"),
-                subtitle: Text("25th avenue, 23 street"),
+                title: Text("Dirección recinente"),
+                subtitle: Text("Av. Benito Juárez"),
               ),
             ],
           ),
