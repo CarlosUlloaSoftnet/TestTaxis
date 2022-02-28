@@ -51,6 +51,8 @@ dependencies:
   get_it: ^7.2.0
   url_launcher: ^6.0.20
   flutter_keyboard_visibility: ^5.2.0
+  sliding_up_panel: ^2.0.0+1
+  flutter_sliding_up_panel: ^2.0.1
 
 dev_dependencies:
   flutter_test:
