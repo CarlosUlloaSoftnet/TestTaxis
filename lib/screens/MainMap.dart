@@ -77,8 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             MapScreen(scaffoldState),
             Visibility(
-              visible: false,
-              // visible: appState.show == Show.DRIVER_FOUND,
+              // visible: false,
+              visible: appState.show == Show.DRIVER_FOUND,
               child: Positioned(
                   top: 60,
                   left: 15,
@@ -118,8 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
             ),
             Visibility(
-              visible: false,
-              // visible: appState.show == Show.TRIP,
+              // visible: false,
+              visible: appState.show == Show.TRIP,
               child: Positioned(
                   top: 60,
                   left: MediaQuery.of(context).size.width / 7,
@@ -152,34 +152,34 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             // ANCHOR Draggable
             Visibility(
-                visible: true,
-                // visible: appState.show == Show.DESTINATION_SELECTION,
+                // visible: true,
+                visible: appState.show == Show.DESTINATION_SELECTION,
                 child: DestinationWidget()),
             // ANCHOR PICK UP WIDGET
             Visibility(
-              visible: false,
-              // visible: appState.show == Show.PICKUP_SELECTION,
+              // visible: false,
+              visible: appState.show == Show.PICKUP_SELECTION,
               child: PickupSelectionWidget(
                 scaffoldState: scaffoldState,
               ),
             ),
             //  ANCHOR Draggable PAYMENT METHOD
             Visibility(
-                visible: false,
-                // visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
+                // visible: false,
+                visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
                 child: PaymentMethodSelectionWidget(
                   scaffoldState: scaffoldState,
                 )),
             //  ANCHOR Draggable DRIVER
             Visibility(
-                visible: false,
-                // visible: appState.show == Show.DRIVER_FOUND,
+                // visible: false,
+                visible: appState.show == Show.DRIVER_FOUND,
                 child: DriverFoundWidget()),
 
             //  ANCHOR Draggable DRIVER
             Visibility(
-                visible: false,
-                // visible: appState.show == Show.TRIP,
+                // visible: false,
+                visible: appState.show == Show.TRIP,
                 child: TripWidget()),
           ],
         ),

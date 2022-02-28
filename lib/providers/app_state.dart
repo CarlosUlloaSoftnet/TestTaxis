@@ -197,14 +197,16 @@ class AppStateProvider with ChangeNotifier {
   }
 
   addPickupMarker(LatLng position) {
-    pickupCoordinates ??= position;
+    pickupCoordinates = position;
     _markers.add(Marker(
         markerId: MarkerId(PICKUP_MARKER_ID),
         position: position,
-        anchor: Offset(0, 0.85),
-        zIndex: 3,
-        infoWindow: InfoWindow(title: "Pickup", snippet: "location"),
-        icon: locationPin));
+        // anchor: Offset(0, 0.85),
+        // zIndex: 3,
+        infoWindow: InfoWindow(title: "Direccion", snippet: ""),
+        // icon: locationPin)
+        icon: BitmapDescriptor.defaultMarker)
+    );
     notifyListeners();
   }
 

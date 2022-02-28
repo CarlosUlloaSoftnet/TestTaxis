@@ -39,8 +39,8 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Text(
-                    "How do you want to pay,\n\$100",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    "Como pagaras,\n\$100",
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -52,24 +52,24 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                       Container(
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: Colors.blue.withOpacity(0.3),
+                                color: Colors.orange.withOpacity(0.3),
                                 width: 1.5)),
                         child: FlatButton.icon(
                             onPressed: () {
                               scaffoldState.currentState?.showSnackBar(SnackBar(
-                                  content: Text("Method not available!")));
+                                  content: Text("Metodo no dispnible!")));
                             },
-                            icon: Icon(Icons.credit_card),
-                            label: Text("With Card")),
+                            icon: Icon(Icons.credit_card, color: Colors.orange),
+                            label: Text("Con tarjeta")),
                       ),
                       Container(
                         decoration: BoxDecoration(
                             color: Colors.blueAccent.withOpacity(0.1),
-                            border: Border.all(color: Colors.blue, width: 1.5)),
+                            border: Border.all(color: Colors.orange, width: 1.5)),
                         child: FlatButton.icon(
                             onPressed: () {},
-                            icon: Icon(Icons.monetization_on),
-                            label: Text("With Cash")),
+                            icon: Icon(Icons.monetization_on, color: Colors.orange,),
+                            label: Text("Con efectivo")),
                       ),
                     ],
                   ),
@@ -99,7 +99,7 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                     ),
                     child: RaisedButton(
                       onPressed: () async {
-                        /*appState.requestDriver(
+                       /* appState.requestDriver(
                             distance:
                             appState.routeModel.distance.toJson(),
                             user: userProvider.userModel,
@@ -136,7 +136,7 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                                           MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                                "Looking for a driver"),
+                                                "Buscando un conductor"),
                                           ],
                                         ),
                                         SizedBox(
@@ -168,9 +168,9 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                                                       .currentState
                                                       ?.showSnackBar(SnackBar(
                                                       content: Text(
-                                                          "Request cancelled!")));
+                                                          "Solicitud cancelada!")));
                                                 },
-                                                child: Text("Cancel Request",
+                                                child: Text("Cancelar solicitud",
                                                   style: TextStyle(color: Colors.deepOrange),
                                                 )),
                                           ],
@@ -182,9 +182,9 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                               );
                             });
                       },
-                      color: black,
+                      color: Colors.orange,
                       child: Text(
-                        "Request",
+                        "Solicitar",
                         style: TextStyle(color: white, fontSize: 16),
                       ),
                     ),

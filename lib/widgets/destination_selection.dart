@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_sliding_up_panel/sliding_up_panel_widget.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_place/google_place.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test_project/helpers/constants.dart';
 import '../helpers/style.dart';
 import '../providers/app_state.dart';
 
@@ -18,9 +21,13 @@ class DestinationWidget extends StatefulWidget {
 class DestinationSelectionWidget extends State<DestinationWidget> {
   late ScrollController scrollController;
   SlidingUpPanelController panelController = SlidingUpPanelController();
+  late GooglePlace googlePlace;
+  List<AutocompletePrediction> predictions = [];
+  late DetailsResult detailsResult;
 
   @override
   void initState() {
+    googlePlace = GooglePlace(GOOGLE_MAPS_API_KEY);
     scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.offset >=
@@ -39,28 +46,23 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
-    KeyboardVisibilityController().onChange.listen((isVisible) {
+   /* KeyboardVisibilityController().onChange.listen((isVisible) {
       if(isVisible){
         appState.setSize(0.50, 0.45);
       }else{
         panelController.collapse();
       }
-
-    });
+    });*/
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: SlidingUpPanelWidget(
-        /*initialChildSize: appState.sizeDriver,
-        minChildSize: appState.sizeDriver,
-        maxChildSize: 0.70,
-        builder: (BuildContext context, myscrollController) {*/
           controlHeight: 130.0,
           anchor: 0.4 ,
           panelController: panelController,
           child: Container(
             decoration: BoxDecoration(
                 color: white,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
@@ -71,7 +73,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
             child: ListView(
               // controller: myscrollController,
               children: [
-                Icon(
+                const Icon(
                   Icons.remove,
                   size: 40,
                   color: grey,
@@ -91,23 +93,32 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                             mode: Mode.overlay, // Mode.fullscreen
                             // language: "pt",
                             components: [
-                              *//*new Component(Component.country,
-                                  preferences.getString(COUNTRY))*//*
+                              new Component(Component.country,
+                                  preferences.getString(COUNTRY))
                             ]);*/
-                        /*PlacesDetailsResponse detail =
-                        await places.getDetailsByPlaceId(p?.placeId);
-                        double lat = detail.result.geometry?.location.lat;
-                        double lng = detail.result.geometry.location.lng;*/
-                       /* appState.changeRequestedDestination(
-                            reqDestination: p.description, lat: lat, lng: lng);*/
-                        /*appState.updateDestination(destination: p.description);
-                        LatLng coordinates = LatLng(lat, lng);*/
+                        // PlacesDetailsResponse detail =
+                        // await places.getDetailsByPlaceId(p?.placeId);
+                       /* double lat = detail.result.geometry?.location.lat;
+                        double lng = detail.result.geometry.location.lng;
+                        appState.changeRequestedDestination(
+                            reqDestination: p.description, lat: lat, lng: lng);
+                        appState.updateDestination(destination: p.description);
+                        LatLng coordinates = LatLng(lat, lng);
                         // appState.setDestination(coordinates: coordinates);
                         appState.addPickupMarker(appState.center!);
 
                         appState.changeWidgetShowed(
-                            showWidget: Show.PICKUP_SELECTION);
+                            showWidget: Show.PICKUP_SELECTION);*/
                         // appState.sendRequest(coordinates: coordinates);
+                      },
+                      onChanged: (value) {
+                        if(value.isNotEmpty) {
+                          autoCompleteSearch(value);
+                        }else if(predictions.length > 0 && mounted) {
+                          setState(() {
+                            predictions = [];
+                          });
+                        }
                       },
                       textInputAction: TextInputAction.go,
                       controller: appState.destinationController,
@@ -117,70 +128,118 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                           margin: EdgeInsets.only(left: 20, bottom: 15),
                           width: 10,
                           height: 10,
-                          child: Icon(
+                          child: const Icon(
                             Icons.location_on,
                             color: Colors.orange,
                           ),
                         ),
                         hintText: "A donde vamos?",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                             color: Colors.orange,
                             fontSize: 18,
                             fontWeight: FontWeight.bold),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color:Colors.orange)),
-                        contentPadding: EdgeInsets.all(15),
+                        contentPadding: const EdgeInsets.all(15),
                       ),
                     ),
                   ),
                 ),
-                ListTile(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height - 150,
+                      child: ListView.builder(
+                      itemCount: predictions.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: CircleAvatar(
+                            child: Icon(
+                              Icons.pin_drop,
+                              color: Colors.white,
+                            ),
+                          ),
+                          title: Text(predictions[index].description!),
+                          onTap: () async {
+                            debugPrint(predictions[index].placeId);
+                            if(predictions[index] != null){
+                              var result = await googlePlace.details.get(predictions[index].placeId!);
+                              if (result != null && result.result != null && mounted) {
+                                if(result.result!.geometry != null){
+                                  double lat = result.result!.geometry!.location!.lat!;
+                                  double lng = result.result!.geometry!.location!.lng!;
+                                  // appState.changeRequestedDestination(
+                                  //     reqDestination: p.description, lat: lat, lng: lng);
+                                  appState.updateDestination(destination: predictions[index].description);
+                                  LatLng coordinates = LatLng(lat, lng);
+                                  appState.setDestination(coordinates: coordinates);
+                                  appState.addPickupMarker(appState.center!);
+
+                                  appState.changeWidgetShowed(
+                                      showWidget: Show.PICKUP_SELECTION);
+                                }
+                              }
+                            }
+                            panelController.collapse();
+                          },
+                        );
+                      }),
+                    ),
+                  ),
+                /*ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.deepOrange[300],
-                    child: Icon(
+                    child: const Icon(
                       Icons.home,
                       color: white,
                     ),
                   ),
-                  title: Text("Casa"),
+                  title: const Text("Casa"),
                   subtitle: Text("Mariano de abasolo"),
                 ),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.deepOrange[300],
-                    child: Icon(
+                    child: const Icon(
                       Icons.work,
                       color: white,
                     ),
                   ),
-                  title: Text("Trabajo"),
-                  subtitle: Text("Sayula 215"),
+                  title: const Text("Trabajo"),
+                  subtitle: const Text("Sayula 215"),
                 ),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey.withOpacity(0.18),
-                    child: Icon(
+                    child: const Icon(
                       Icons.history,
                       color: primary,
                     ),
                   ),
-                  title: Text("Dirección recinente"),
-                  subtitle: Text("Av. Félix U. Gómez"),
+                  title: const Text("Dirección recinente"),
+                  subtitle: const Text("Av. Félix U. Gómez"),
                 ),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey.withOpacity(.18),
-                    child: Icon(
+                    child: const Icon(
                       Icons.history,
                       color: primary,
                     ),
                   ),
-                  title: Text("Dirección recinente"),
-                  subtitle: Text("Av. Benito Juárez"),
-                ),
+                  title: const Text("Dirección recinente"),
+                  subtitle: const Text("Av. Benito Juárez"),
+                ),*/
               ],
             ),
       )),
     );
   }
+  void autoCompleteSearch(String value) async {
+    var result = await googlePlace.autocomplete.get(value);
+    if (result != null && result.predictions != null && mounted) {
+      setState(() {
+        predictions = result.predictions!;
+      });
+    }
+  }
 }
+

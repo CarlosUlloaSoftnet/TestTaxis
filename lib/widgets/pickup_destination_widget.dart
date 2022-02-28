@@ -39,7 +39,7 @@ class PickupSelectionWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Move the pin to adjust pickup location",
+                    "Mueva el pin para ajustar el punto de encuentro",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
                   ),
                 ],
@@ -74,14 +74,14 @@ class PickupSelectionWidget extends StatelessWidget {
                       appState.updateDestination(destination: p.description);
                       LatLng coordinates = LatLng(lat, lng);*/
                       // appState.setPickCoordinates(coordinates: coordinates);
-                      /*appState.changePickupLocationAddress(
-                          address: p.description); */
+                      // appState.changePickupLocationAddress(
+                      //     address: p.description);
                       appState.changePickupLocationAddress(
                           address: "DESCRIPCION");
                     },
                     textInputAction: TextInputAction.go,
                     controller: appState.pickupLocationController,
-                    cursorColor: Colors.blue.shade900,
+                    cursorColor: Colors.orange.shade900,
                     decoration: InputDecoration(
                       icon: Container(
                         margin: EdgeInsets.only(left: 20, bottom: 15),
@@ -89,12 +89,12 @@ class PickupSelectionWidget extends StatelessWidget {
                         height: 10,
                         child: Icon(
                           Icons.location_on,
-                          color: primary,
+                          color: Colors.orange,
                         ),
                       ),
-                      hintText: "Pick up location",
+                      hintText: "Punto de encuentro",
                       hintStyle: TextStyle(
-                          color: black,
+                          color: Colors.orange,
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
                       border: InputBorder.none,
@@ -111,15 +111,15 @@ class PickupSelectionWidget extends StatelessWidget {
                     left: 15.0,
                     right: 15.0,
                   ),
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     onPressed: () async {
                       // await appState.sendRequest();
                       appState.changeWidgetShowed(
                           showWidget: Show.PAYMENT_METHOD_SELECTION);
                     },
-                    color: black,
+                    style: ElevatedButton.styleFrom(primary: Colors.orange),
                     child: Text(
-                      "Comfirm Pickup",
+                      "Confirmar viaje",
                       style: TextStyle(color: white, fontSize: 16),
                     ),
                   ),
@@ -131,4 +131,12 @@ class PickupSelectionWidget extends StatelessWidget {
       },
     );
   }
+  // void autoCompleteSearch(String value) async {
+  //   var result = await googlePlace.autocomplete.get(value);
+  //   if (result != null && result.predictions != null && mounted) {
+  //     setState(() {
+  //       predictions = result.predictions!;
+  //     });
+  //   }
+  // }
 }
