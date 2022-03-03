@@ -2,11 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test_project/screens/MainMap.dart';
-import 'package:test_project/screens/myTrips.dart';
-import 'package:test_project/screens/profile.dart';
-import 'package:test_project/screens/register.dart';
-
 
 
 class LoginPage extends StatefulWidget {
@@ -17,6 +12,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  var _controller = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    var _controller = TextEditingController();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +48,11 @@ class _LoginPageState extends State<LoginPage> {
                   children: <Widget>[
                     TextFormField(
                       style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(labelText: "Usuario:"),
+                      decoration: const InputDecoration(labelText: "Usuario:", suffixIcon: IconButton(
+                        onPressed: _controller.clear,
+                        icon: Icon(Icons.clear),
+                      ),
+                      ),
                     ),
                     const SizedBox(
                       height: 40,

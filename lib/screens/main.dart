@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Taxis',
       initialRoute: "/",
       routes: {
         "/MyTrips": (BuildContext context) => const MyTrips(),
@@ -35,10 +35,11 @@ class MyApp extends StatelessWidget {
         "/Profile": (BuildContext context) => const Profile(),
       },
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange, brightness: Brightness.light, primaryColorDark: Colors.deepOrange, ),
           brightness: Brightness.light,
           primaryColor: Colors.orange,
-          secondaryHeaderColor: Colors.white),
-      home: MyHomePage(),
+          secondaryHeaderColor: Colors.black),
+      home: LoginPage(),
     );
   }
 }
