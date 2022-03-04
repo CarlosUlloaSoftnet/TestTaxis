@@ -73,116 +73,119 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        body: Stack(
-          children: [
-            MapScreen(scaffoldState),
-            Visibility(
-              // visible: false,
-              visible: appState.show == Show.DRIVER_FOUND,
-              child: Positioned(
-                  top: 60,
-                  left: 15,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: appState.driverArrived
-                              ? Container(
-                                  // child: appState.driverArrived ? Container(
-                                  color: green,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Text(
-                                      "Reunace con el conductor en el punto de encuentro",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                )
-                              : Container(
+        body: appState.center == null
+            ? Loading()
+            : Stack(
+                children: [
+                  MapScreen(scaffoldState),
+                  Visibility(
+                    // visible: false,
+                    visible: appState.show == Show.DRIVER_FOUND,
+                    child: Positioned(
+                        top: 60,
+                        left: 15,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: appState.driverArrived
+                                    ? Container(
+                                        // child: appState.driverArrived ? Container(
+                                        color: green,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Text(
+                                            "Reunace con el conductor en el punto de encuentro",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        color: primary,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Text(
+                                            "Conozca al conductor en el lugar de recogida",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w300),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                  Visibility(
+                    // visible: false,
+                    visible: appState.show == Show.TRIP,
+                    child: Positioned(
+                        top: 60,
+                        left: MediaQuery.of(context).size.width / 7,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: Container(
                                   color: primary,
                                   child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Text(
-                                      "Conozca al conductor en el lugar de recogida",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300),
-                                    ),
-                                  ),
+                                      padding: const EdgeInsets.all(16),
+                                      child: RichText(
+                                          text: TextSpan(children: [
+                                        TextSpan(
+                                            text: "Llegará a tu destino en \n",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w300)),
+                                        TextSpan(
+                                            text: "30 minutos",
+                                            // text:  "appState.routeModel?.timeNeeded?.text ??",
+                                            style: TextStyle(fontSize: 22)),
+                                      ]))),
                                 ),
-                        ),
-                      ],
-                    ),
-                  )),
-            ),
-            Visibility(
-              // visible: false,
-              visible: appState.show == Show.TRIP,
-              child: Positioned(
-                  top: 60,
-                  left: MediaQuery.of(context).size.width / 7,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: Container(
-                            color: primary,
-                            child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: RichText(
-                                    text: TextSpan(children: [
-                                  TextSpan(
-                                      text: "Llegará a tu destino en \n",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w300)),
-                                  TextSpan(
-                                      text: "30 minutos",
-                                      // text:  "appState.routeModel?.timeNeeded?.text ??",
-                                      style: TextStyle(fontSize: 22)),
-                                ]))),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        )),
+                  ),
+                  // ANCHOR Draggable
+                  Visibility(
+                      // visible: true,
+                      visible: appState.show == Show.DESTINATION_SELECTION,
+                      child: const DestinationWidget()),
+                  // ANCHOR PICK UP WIDGET
+                  Visibility(
+                    // visible: false,
+                    visible: appState.show == Show.PICKUP_SELECTION,
+                    child: PickupSelectionWidget(
+                      scaffoldState: scaffoldState,
                     ),
-                  )),
-            ),
-            // ANCHOR Draggable
-            Visibility(
-                // visible: true,
-                visible: appState.show == Show.DESTINATION_SELECTION,
-                child: DestinationWidget()),
-            // ANCHOR PICK UP WIDGET
-            Visibility(
-              // visible: false,
-              visible: appState.show == Show.PICKUP_SELECTION,
-              child: PickupSelectionWidget(
-                scaffoldState: scaffoldState,
-              ),
-            ),
-            //  ANCHOR Draggable PAYMENT METHOD
-            Visibility(
-                // visible: false,
-                visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
-                child: PaymentMethodSelectionWidget(
-                  scaffoldState: scaffoldState,
-                )),
-            //  ANCHOR Draggable DRIVER
-            Visibility(
-                // visible: false,
-                visible: appState.show == Show.DRIVER_FOUND,
-                child: DriverFoundWidget()),
+                  ),
+                  //  ANCHOR Draggable PAYMENT METHOD
+                  Visibility(
+                      // visible: false,
+                      visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
+                      child: PaymentMethodSelectionWidget(
+                        scaffoldState: scaffoldState,
+                      )),
+                  //  ANCHOR Draggable DRIVER
+                  Visibility(
+                      // visible: false,
+                      visible: appState.show == Show.DRIVER_FOUND,
+                      child: DriverFoundWidget()),
 
-            //  ANCHOR Draggable DRIVER
-            Visibility(
-                // visible: false,
-                visible: appState.show == Show.TRIP,
-                child: TripWidget()),
-          ],
-        ),
+                  //  ANCHOR Draggable DRIVER
+                  Visibility(
+                      // visible: false,
+                      visible: appState.show == Show.TRIP,
+                      child: TripWidget()),
+                ],
+              ),
       ),
     );
   }
@@ -215,37 +218,34 @@ class _MapScreenState extends State<MapScreen> {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
     // UserProvider userProvider = Provider.of<UserProvider>(context);
 
-    return appState.center == null
-        ? Loading()
-        : Stack(
-            children: <Widget>[
-              GoogleMap(
-                initialCameraPosition:
-                    CameraPosition(target: appState.center!, zoom: 15),
-
-                onMapCreated: appState.onCreate,
-                zoomControlsEnabled: false,
-                myLocationEnabled: true,
-                compassEnabled: false,
-                mapType: MapType.normal,
-                rotateGesturesEnabled: true,
-                markers: appState.markers,
-                onCameraMove: appState.onCameraMove,
-                polylines: appState.poly,
+    return Stack(
+      children: <Widget>[
+        GoogleMap(
+          initialCameraPosition:
+              CameraPosition(target: appState.center!, zoom: 15),
+          onMapCreated: appState.onCreate,
+          zoomControlsEnabled: false,
+          myLocationEnabled: true,
+          compassEnabled: false,
+          mapType: MapType.normal,
+          rotateGesturesEnabled: true,
+          markers: appState.markers,
+          onCameraMove: appState.onCameraMove,
+          polylines: appState.poly,
+        ),
+        Positioned(
+          top: 10,
+          left: 15,
+          child: IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: primary,
+                size: 30,
               ),
-              Positioned(
-                top: 10,
-                left: 15,
-                child: IconButton(
-                    icon: Icon(
-                      Icons.menu,
-                      color: primary,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      scaffoldSate.currentState?.openDrawer();
-                    }),
-              ),
+              onPressed: () {
+                scaffoldSate.currentState?.openDrawer();
+              }),
+        ),
 //              Positioned(
 //                bottom: 60,
 //                right: 0,
@@ -284,8 +284,8 @@ class _MapScreenState extends State<MapScreen> {
 //                  ),
 //                ),
 //              ),
-            ],
-          );
+      ],
+    );
   }
 
   Future<Null> displayPrediction(Prediction p) async {

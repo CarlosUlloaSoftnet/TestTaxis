@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         "/Profile": (BuildContext context) => const Profile(),
       },
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange, brightness: Brightness.light, primaryColorDark: Colors.deepOrange, ),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange, brightness: Brightness.light, primaryColorDark: Colors.grey[600], ),
           brightness: Brightness.light,
           primaryColor: Colors.orange,
           secondaryHeaderColor: Colors.black),

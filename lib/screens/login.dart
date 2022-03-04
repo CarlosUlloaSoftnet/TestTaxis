@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,94 +12,163 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var _controller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _userController = TextEditingController();
+  final _passController = TextEditingController();
+  var _obscureText = true;
+
   @override
-  void initState() {
-    super.initState();
-    var _controller = TextEditingController();
+  void dispose() {
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/fondoTaxi.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Center(
-            child: Card(
-              color: Colors.white54,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              margin: const EdgeInsets.only(
-                  left: 20, bottom: 20, right: 20, top: 20),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextFormField(
-                      style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(labelText: "Usuario:", suffixIcon: IconButton(
-                        onPressed: _controller.clear,
-                        icon: Icon(Icons.clear),
-                      ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    TextFormField(
-                      style: const TextStyle(color: Colors.black),
-                      decoration:
-                          const InputDecoration(labelText: "Contraseña:"),
-                      obscureText: true,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          child: const Text("Aceptar"),
-                          style: ElevatedButton.styleFrom(
-                              primary: Theme.of(context).primaryColor),
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/MapHome");
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text('¿No estas resgistrado?'),
-                        TextButton(
-                          onPressed: () {Navigator.pushNamed(context, "/Register");},
-                          child: const Text("Registrarse"),
-                          style: TextButton.styleFrom(
-                            primary: Colors.orange,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
+      body: Form(
+        key: _formKey,
+        child: Stack(
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/fondoTaxi.jpg'),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-          )
-        ],
+            Center(
+              child: Card(
+                color: Colors.white54,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                margin: const EdgeInsets.only(
+                    left: 20, bottom: 20, right: 20, top: 20),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      TextFormField(
+                        autofillHints: const [AutofillHints.username],
+                        style: const TextStyle(overflow: TextOverflow.ellipsis),
+                        controller: _userController,
+                        maxLength: 30,
+                        maxLines: 1,
+                        keyboardType: TextInputType.emailAddress,
+                        textCapitalization: TextCapitalization.words,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ingrese su usuario';
+                          }
+                          return null;
+                        },
+                        onChanged: (text) {
+                          if (text.length > 1) {
+                            _formKey.currentState?.validate();
+                          }
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          // fillColor: Colors.grey[600],
+                          labelText: "Usuario:",
+                          suffixIcon: _userController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                  ),
+                                  onPressed: () {
+                                    _userController.clear();
+                                  })
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      TextFormField(
+                        autofillHints: const [AutofillHints.password],
+                        style: const TextStyle(overflow: TextOverflow.ellipsis),
+                        controller: _passController,
+                        obscureText: _obscureText,
+                        maxLength: 10,
+                        maxLines: 1,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ingrese su contraseña';
+                          }
+                          return null;
+                        },
+                        onChanged: (text) {
+                          if (text.length > 1) {
+                            _formKey.currentState?.validate();
+                          }
+                        },
+                        decoration: InputDecoration(
+                            filled: true,
+                            labelText: "Contraseña:",
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                              icon: Icon(_obscureText
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                            )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 30),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            child: const Text("Aceptar"),
+                            // style: ElevatedButton.styleFrom(
+                            //     primary: Theme.of(context).primaryColor),
+                            onPressed: () {
+                              if (!_formKey.currentState!.validate()) {
+                                return;
+                              }
+                              Navigator.pushNamed(context, "/MapHome");
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Text('¿No estas resgistrado?'),
+                          TextButton(
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                return;
+                              }
+                              Navigator.pushNamed(context, "/Register");
+                            },
+                            child: const Text("Registrarse"),
+                            style: TextButton.styleFrom(
+                              primary: Colors.deepOrange,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

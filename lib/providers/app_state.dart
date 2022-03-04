@@ -16,6 +16,7 @@ import '../helpers/style.dart';
 import '../services/ride_requests.dart';
 
 enum Show {
+  LOADING,
   DESTINATION_SELECTION,
   PICKUP_SELECTION,
   PAYMENT_METHOD_SELECTION,
