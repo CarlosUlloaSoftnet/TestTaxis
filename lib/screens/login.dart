@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -27,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Form(
         key: _formKey,
         child: Stack(
@@ -42,17 +44,17 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Center(
               child: Card(
+                elevation: 150,
                 color: Colors.white54,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                margin: const EdgeInsets.only(
-                    left: 20, bottom: 20, right: 20, top: 20),
+                margin: EdgeInsets.all(20.h),
                 child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+                       EdgeInsets.symmetric(horizontal: 35.h, vertical: 20.w),
                   child: Column(
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       TextFormField(
                         autofillHints: const [AutofillHints.username],
@@ -88,8 +90,8 @@ class _LoginPageState extends State<LoginPage> {
                               : null,
                         ),
                       ),
-                      const SizedBox(
-                        height: 40,
+                      SizedBox(
+                        height: 40.h,
                       ),
                       TextFormField(
                         autofillHints: const [AutofillHints.password],
@@ -124,10 +126,10 @@ class _LoginPageState extends State<LoginPage> {
                             )),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 30),
+                        padding: EdgeInsets.only(top: 30.h),
                         child: SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 40.h,
                           child: ElevatedButton(
                             child: const Text("Aceptar"),
                             // style: ElevatedButton.styleFrom(
@@ -141,8 +143,8 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
+                      SizedBox(
+                        height: 20.h,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

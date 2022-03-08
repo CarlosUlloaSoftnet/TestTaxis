@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:test_project/providers/app_state.dart';
 import 'package:test_project/screens/profile.dart';
@@ -24,22 +25,26 @@ class MyApp extends StatelessWidget {
   static const String routeName = '/MyApp';
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Taxis',
-      initialRoute: "/",
-      routes: {
-        "/MyTrips": (BuildContext context) => const MyTrips(),
-        "/MapHome": (BuildContext context) => const MyHomePage(),
-        "/LoginPage": (BuildContext context) => const LoginPage(),
-        "/Register": (BuildContext context) => const Register(),
-        "/Profile": (BuildContext context) => const Profile(),
-      },
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange, brightness: Brightness.light, primaryColorDark: Colors.grey[600], ),
-          brightness: Brightness.light,
-          primaryColor: Colors.orange,
-          secondaryHeaderColor: Colors.black),
-      home: LoginPage(),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      builder: ()=> MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Taxis',
+        initialRoute: "/",
+        routes: {
+          "/MyTrips": (BuildContext context) => const MyTrips(),
+          "/MapHome": (BuildContext context) => const MyHomePage(),
+          "/LoginPage": (BuildContext context) => const LoginPage(),
+          "/Register": (BuildContext context) => const Register(),
+          "/Profile": (BuildContext context) => const Profile(),
+        },
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange, brightness: Brightness.light, primaryColorDark: Colors.grey[600], ),
+            brightness: Brightness.light,
+            primaryColor: Colors.orange,
+            secondaryHeaderColor: Colors.black),
+        home: LoginPage(),
+      ),
     );
   }
 }
