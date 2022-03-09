@@ -45,16 +45,17 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
-    /* KeyboardVisibilityController().onChange.listen((isVisible) {
+     KeyboardVisibilityController().onChange.listen((isVisible) {
       if(isVisible){
-        appState.setSize(0.50, 0.45);
+
       }else{
         panelController.collapse();
       }
-    });*/
+    });
     return Padding(
       padding: const EdgeInsets.only(top: 80),
       child: SlidingUpPanelWidget(
+        enableOnTap: false,
           controlHeight: 120.0.h,
           anchor: 0.4,
           panelController: panelController,
@@ -123,6 +124,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                     },
                     textInputAction: TextInputAction.go,
                     controller: appState.destinationController,
+                    style: TextStyle(fontSize: 18.sp, color: Colors.deepOrange, fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
                       filled: true,
@@ -143,9 +145,9 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                         ),
                       ),*/
                       hintText: "A donde vamos?",
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                           color: Colors.orange,
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.bold),
                     ),
                   ),

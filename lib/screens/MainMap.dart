@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart';
@@ -36,6 +37,16 @@ class _MyHomePageState extends State<MyHomePage> {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: 130.h),
+          child: FloatingActionButton(
+            onPressed: () {
+              appState.updateCamera();
+            },
+            backgroundColor: Colors.white,
+            child: const Icon(Icons.navigation, color: Colors.deepOrange),
+          ),
+        ),
         key: scaffoldState,
         resizeToAvoidBottomInset: false,
         drawer: Drawer(
@@ -224,6 +235,7 @@ class _MapScreenState extends State<MapScreen> {
           initialCameraPosition:
               CameraPosition(target: appState.center!, zoom: 15),
           onMapCreated: appState.onCreate,
+          myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
           myLocationEnabled: true,
           compassEnabled: false,
@@ -234,18 +246,24 @@ class _MapScreenState extends State<MapScreen> {
           polylines: appState.poly,
         ),
         Positioned(
-          top: 10,
-          left: 15,
-          child: IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: primary,
-                size: 30,
-              ),
-              onPressed: () {
-                scaffoldSate.currentState?.openDrawer();
-              }),
-        ),
+          top: 30.h,
+          left: 15.w,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: white,
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20),),
+            ),
+            child: IconButton(
+                icon: const Icon(
+                  Icons.menu,
+                  color: Colors.deepOrange,
+                  size: 30,
+                ),
+                onPressed: () {
+                  scaffoldSate.currentState?.openDrawer();
+                }),
+          ),
 //              Positioned(
 //                bottom: 60,
 //                right: 0,
@@ -284,6 +302,7 @@ class _MapScreenState extends State<MapScreen> {
 //                  ),
 //                ),
 //              ),
+        )
       ],
     );
   }

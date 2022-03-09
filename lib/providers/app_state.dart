@@ -152,6 +152,15 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
+  void updateCamera(){
+    if(_mapController != null && position != null){
+      LatLng latLng = LatLng(position!.latitude!, position!.longitude!);
+      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng,15);
+      _mapController.animateCamera(cameraUpdate);
+      notifyListeners();
+    }
+  }
+
   //CONSUMIR SERVICIOS API PARA OBETENER LA LISTA DE CONDUCTORES
   _listemToDrivers() {
     // allDriversStream = _driverService.getDrivers().listen(_updateMarkers);

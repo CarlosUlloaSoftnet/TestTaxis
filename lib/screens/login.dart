@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Form(
         key: _formKey,
         child: Stack(
@@ -37,9 +38,15 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/fondoTaxi.jpg'),
-                  fit: BoxFit.cover,
-                ),
+                    image: AssetImage('assets/fondoTaxi.jpg'),
+                    fit: BoxFit.cover),
+              ),
+            ),
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+              child: Container(
+                decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(0.0)),
               ),
             ),
             Center(
@@ -52,13 +59,17 @@ class _LoginPageState extends State<LoginPage> {
                 margin: EdgeInsets.all(20.h),
                 child: Padding(
                   padding:
-                       EdgeInsets.symmetric(horizontal: 35.h, vertical: 20.w),
+                      EdgeInsets.symmetric(horizontal: 25.h, vertical: 20.w),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
+                      SizedBox(
+                        height: 25.h,
+                      ),
                       TextFormField(
                         autofillHints: const [AutofillHints.username],
-                        style: const TextStyle(overflow: TextOverflow.ellipsis),
+                        style:
+                            const TextStyle(overflow: TextOverflow.ellipsis),
                         controller: _userController,
                         maxLength: 30,
                         maxLines: 1,
@@ -77,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         decoration: InputDecoration(
                           filled: true,
-                          // fillColor: Colors.grey[600],
+                          fillColor: Colors.white24,
                           labelText: "Usuario:",
                           suffixIcon: _userController.text.isNotEmpty
                               ? IconButton(
@@ -91,11 +102,13 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       SizedBox(
-                        height: 40.h,
+                        height: 25.h,
                       ),
                       TextFormField(
+
                         autofillHints: const [AutofillHints.password],
-                        style: const TextStyle(overflow: TextOverflow.ellipsis),
+                        style:
+                            const TextStyle(overflow: TextOverflow.ellipsis),
                         controller: _passController,
                         obscureText: _obscureText,
                         maxLength: 10,
@@ -113,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         decoration: InputDecoration(
                             filled: true,
+                            fillColor: Colors.white24,
                             labelText: "Contraseña:",
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -126,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                             )),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 30.h),
+                        padding: EdgeInsets.only(top: 25.h),
                         child: SizedBox(
                           width: double.infinity,
                           height: 40.h,
@@ -149,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          const Text('¿No estas resgistrado?'),
+                          Text('¿No estas resgistrado?',style: TextStyle(fontSize: 12.w)),
                           TextButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
@@ -157,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               Navigator.pushNamed(context, "/Register");
                             },
-                            child: const Text("Registrarse"),
+                            child: Text("Registrarse", style: TextStyle(fontSize: 15.w, fontWeight: FontWeight.bold)),
                             style: TextButton.styleFrom(
                               primary: Colors.deepOrange,
                             ),
