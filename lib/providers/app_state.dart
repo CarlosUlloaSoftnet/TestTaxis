@@ -4,16 +4,16 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocode/geocode.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'package:test_project/Models/Geolocalisation.dart';
 import 'package:test_project/Models/driver.dart';
 import 'package:test_project/services/drivers.dart';
 import 'package:test_project/services/map_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
 
+import '../Models/Geolocalisation.dart';
 import '../Models/ride_request.dart';
 import '../Models/route.dart';
 import '../helpers/style.dart';
@@ -213,6 +213,9 @@ class AppStateProvider with ChangeNotifier {
                 position.target.latitude, position.target.longitude);
             location.getLocation().
             pickupLocationController.text = placeMark[0].name!;*/
+            GeoCode geoCode = GeoCode();
+            var addresses = await geoCode.reverseGeocoding(latitude: position.target.latitude, longitude:  position.target.longitude);
+            pickupLocationController.text = addresses.streetAddress.toString();
             notifyListeners();
           }
         });
