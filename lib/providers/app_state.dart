@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:test_project/Models/Geolocalisation.dart';
 import 'package:test_project/Models/driver.dart';
 import 'package:test_project/services/drivers.dart';
 import 'package:test_project/services/map_requests.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:ui' as ui;
 
 import '../Models/ride_request.dart';
 import '../Models/route.dart';
@@ -60,11 +64,12 @@ class AppStateProvider with ChangeNotifier {
 
   double initialSize = 0.2;
   double sizeDriver = 0.2;
+  var visibleFAB = true;
   //  draggable to show
   Show show = Show.DESTINATION_SELECTION;
 
   //   taxi pin
-  late BitmapDescriptor carPin;
+  late Uint8List carPin;
 
   //   location pin
   late BitmapDescriptor locationPin;
@@ -103,14 +108,13 @@ class AppStateProvider with ChangeNotifier {
   // this variable will keep track of the drivers position before and during the ride
   // StreamSubscription<QuerySnapshot> driverStream;
 //  this stream is for all the driver on the app
-  late StreamSubscription<List<DriverModel>> allDriversStream;
+  late Future<Welcome?> allDriversStream;
 
   late DriverModel driverModel;
   late LatLng pickupCoordinates;
   late LatLng destinationCoordinates;
   double ridePrice = 0;
   String notificationType = "";
-
 
   AppStateProvider() {
     _setCustomMapPin();
@@ -123,18 +127,34 @@ class AppStateProvider with ChangeNotifier {
     _getUserLocation();
   }
 
-  setSize(double sizeDriver, double initialSize){
+  setSize(double sizeDriver, double initialSize) {
     this.sizeDriver = sizeDriver;
     this.initialSize = initialSize;
     notifyListeners();
   }
 
   _setCustomMapPin() async {
-    carPin = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'images/taxi.png');
+    String imgurl = "assets/taxi.png";
+    carPin = await _getBytesFromAsset(
+        path: imgurl, //paste the custom image path
+        width: 100 // size of custom image as marker
+    );
+    /*carPin = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 2.5), 'assets/taxi.png');*/
 
     locationPin = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5), 'images/pin.png');
+  }
+
+  Future<Uint8List> _getBytesFromAsset(
+      {required String path, required int width}) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
   }
 
   void _getUserLocation() async {
@@ -152,18 +172,21 @@ class AppStateProvider with ChangeNotifier {
     }
   }
 
-  void updateCamera(){
-    if(_mapController != null && position != null){
+  void updateCamera() {
+    if (_mapController != null && position != null) {
       LatLng latLng = LatLng(position!.latitude!, position!.longitude!);
-      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng,15);
+      CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng, 15);
       _mapController.animateCamera(cameraUpdate);
       notifyListeners();
     }
   }
 
   //CONSUMIR SERVICIOS API PARA OBETENER LA LISTA DE CONDUCTORES
-  _listemToDrivers() {
-    // allDriversStream = _driverService.getDrivers().listen(_updateMarkers);
+  _listemToDrivers() async {
+    allDriversStream = _driverService.getDrivers().whenComplete(() => _updateMarkers(allDriversStream));
+    // if (allDriversStream != null) {
+    //   _updateMarkers(allDriversStream);
+    // }
   }
 
   onCreate(GoogleMapController controller) {
@@ -186,7 +209,7 @@ class AppStateProvider with ChangeNotifier {
             _markers.remove(element);
             pickupCoordinates = position.target;
             addPickupMarker(position.target);
-        /*    List<Placemark> placeMark = await placemarkFromCoordinates(
+            /*    List<Placemark> placeMark = await placemarkFromCoordinates(
                 position.target.latitude, position.target.longitude);
             location.getLocation().
             pickupLocationController.text = placeMark[0].name!;*/
@@ -215,8 +238,7 @@ class AppStateProvider with ChangeNotifier {
         // zIndex: 3,
         infoWindow: InfoWindow(title: "Direccion", snippet: ""),
         // icon: locationPin)
-        icon: BitmapDescriptor.defaultMarker)
-    );
+        icon: BitmapDescriptor.defaultMarker));
     notifyListeners();
   }
 
@@ -234,7 +256,7 @@ class AppStateProvider with ChangeNotifier {
     }
 
     RouteModel route =
-    await _googleMapsServices.getRouteByCoordinates(_org, _dest);
+        await _googleMapsServices.getRouteByCoordinates(_org, _dest);
     routeModel = route;
 
     if (origin == null) {
@@ -273,12 +295,12 @@ class AppStateProvider with ChangeNotifier {
         position: position,
         anchor: const Offset(0, 0.85),
         infoWindow:
-        InfoWindow(title: destinationController.text, snippet: distance),
+            InfoWindow(title: destinationController.text, snippet: distance),
         icon: locationPin));
     notifyListeners();
   }
 
-  _createRoute(String decodeRoute, { Color? color}) {
+  _createRoute(String decodeRoute, {Color? color}) {
     clearPoly();
     var uuid = new Uuid();
     String polyId = uuid.v1();
@@ -343,29 +365,45 @@ class AppStateProvider with ChangeNotifier {
   }
 
   void _addDriverMarker(
-      {required LatLng position, required double rotation, required String driverId}) {
-    var uuid = new Uuid();
-    String markerId = uuid.v1();
+      {required LatLng position,
+      required double rotation,
+      required String driverId}) {
+    // var uuid = new Uuid();
+    // String markerId = uuid.v1();
     _markers.add(Marker(
-        markerId: MarkerId(markerId),
+        markerId: MarkerId(driverId),
         position: position,
         rotation: rotation,
         draggable: false,
         zIndex: 2,
         flat: true,
         anchor: const Offset(1, 1),
-        icon: carPin));
+        icon: BitmapDescriptor.fromBytes(carPin)));
+        // icon: carPin));
   }
 
-  _updateMarkers(List<DriverModel> drivers) {
+  _updateMarkers(Future<Welcome?> drivers) {
 //    this code will ensure that when the driver markers are updated the location marker wont be deleted
     List<Marker> locationMarkers = _markers
         .where((element) => element.markerId.value == 'location')
         .toList();
     clearMarkers();
-    if (locationMarkers.length > 0) {
+    if (locationMarkers.isNotEmpty) {
       _markers.add(locationMarkers[0]);
     }
+
+//    here we are updating the drivers markers
+    drivers.then((value) => {
+          for (var driver in value!.data.locations)
+            {
+              _addDriverMarker(
+                  driverId: driver.id.toString(),
+                  position: LatLng(driver.position.lat!, driver.position.lng!),
+                  rotation: 10)
+              // rotation: driver.position.heading);
+            }
+        });
+    notifyListeners();
   }
 
   clearMarkers() {
@@ -414,8 +452,7 @@ class AppStateProvider with ChangeNotifier {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Text(
-                          "No se encontraron conductores! \n Intente de nuevo")
+                      Text("No se encontraron conductores! \n Intente de nuevo")
                     ],
                   )),
             ),
@@ -437,7 +474,9 @@ class AppStateProvider with ChangeNotifier {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("7 MIN AWAY", style: TextStyle(color: green, fontWeight: FontWeight.bold)),
+                      Text("7 MIN AWAY",
+                          style: TextStyle(
+                              color: green, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   SizedBox(height: 20),
@@ -469,7 +508,8 @@ class AppStateProvider with ChangeNotifier {
                               borderRadius: BorderRadius.circular(40)),
                           child: CircleAvatar(
                             radius: 45,
-                            backgroundImage: NetworkImage("https://panama.didiglobal.com/wp-content/uploads/sites/13/2020/08/FOTO-03.jpg"),
+                            backgroundImage: NetworkImage(
+                                "https://panama.didiglobal.com/wp-content/uploads/sites/13/2020/08/FOTO-03.jpg"),
                           ),
                         ),
                       )
@@ -493,7 +533,10 @@ class AppStateProvider with ChangeNotifier {
                           onPressed: null,
                           icon: Icon(Icons.directions_car),
                           label: Text(driverModel.car ?? "Nan")),
-                      Text("MARCA DEL VEHICULO", style: TextStyle(color: Colors.deepOrange,)),
+                      Text("MARCA DEL VEHICULO",
+                          style: TextStyle(
+                            color: Colors.deepOrange,
+                          )),
                     ],
                   ),
                   Divider(),
@@ -503,12 +546,14 @@ class AppStateProvider with ChangeNotifier {
                       ElevatedButton(
                         child: Text("Llamar"),
                         onPressed: () {},
-                        style: ElevatedButton.styleFrom(primary: green, shadowColor: Colors.green),
+                        style: ElevatedButton.styleFrom(
+                            primary: green, shadowColor: Colors.green),
                       ),
                       ElevatedButton(
                         child: Text("Cancelar"),
                         onPressed: () {},
-                        style: ElevatedButton.styleFrom(primary: red, shadowColor: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(
+                            primary: red, shadowColor: Colors.redAccent),
                       ),
                     ],
                   )
@@ -536,7 +581,4 @@ class AppStateProvider with ChangeNotifier {
     destinationCoordinates = coordinates;
     notifyListeners();
   }
-
-
 }
-

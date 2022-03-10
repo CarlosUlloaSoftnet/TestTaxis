@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert' as convert;
 import 'dart:ui' as ui;
 
-import '../Models/Geolocalitation.dart';
+import '../Models/Geolocalisation.dart';
 import '../helpers/constants.dart';
 import '../helpers/style.dart';
 import '../providers/app_state.dart';
@@ -39,12 +39,15 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         floatingActionButton: Padding(
           padding: EdgeInsets.only(bottom: 130.h),
-          child: FloatingActionButton(
-            onPressed: () {
-              appState.updateCamera();
-            },
-            backgroundColor: Colors.white,
-            child: const Icon(Icons.navigation, color: Colors.deepOrange),
+          child: Visibility(
+            visible: appState.visibleFAB,
+            child: FloatingActionButton(
+              onPressed: () {
+                appState.updateCamera();
+              },
+              backgroundColor: Colors.white,
+              child: const Icon(Icons.navigation, color: Colors.deepOrange),
+            ),
           ),
         ),
         key: scaffoldState,

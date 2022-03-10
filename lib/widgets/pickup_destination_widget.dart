@@ -8,12 +8,13 @@ import '../providers/app_state.dart';
 class PickupSelectionWidget extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldState;
 
-  const PickupSelectionWidget({ Key? key,  required this.scaffoldState}) : super(key: key);
+  const PickupSelectionWidget({Key? key, required this.scaffoldState})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     // UserProvider userProvider = Provider.of<UserProvider>(context);
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
-
+    appState.visibleFAB = false;
     return DraggableScrollableSheet(
       initialChildSize: 0.28,
       minChildSize: 0.28,

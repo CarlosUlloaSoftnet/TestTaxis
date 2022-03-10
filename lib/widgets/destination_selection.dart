@@ -50,6 +50,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
 
       }else{
         panelController.collapse();
+        appState.visibleFAB = true;
       }
     });
     return Padding(
@@ -87,6 +88,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                     textAlign: TextAlign.center,
                     onTap: () async {
                       panelController.expand();
+                      appState.visibleFAB = false;
                       SharedPreferences preferences =
                           await SharedPreferences.getInstance();
                       /*Prediction? p = await PlacesAutocomplete.show(
@@ -162,8 +164,8 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                           return ListTile(
                             leading: const CircleAvatar(
                               child: Icon(
-                                Icons.pin_drop,
-                                color: Colors.white,
+                                Icons.pin_drop_outlined,
+                                color: Colors.deepOrange,
                               ),
                             ),
                             title: Text(predictions[index].description!),
