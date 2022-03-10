@@ -64,7 +64,7 @@ class AppStateProvider with ChangeNotifier {
 
   double initialSize = 0.2;
   double sizeDriver = 0.2;
-  var visibleFAB = true;
+  var visibleFAB = false;
   //  draggable to show
   Show show = Show.DESTINATION_SELECTION;
 
