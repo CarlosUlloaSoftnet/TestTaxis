@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -7,17 +8,20 @@ import 'package:flutter/services.dart';
 import 'package:geocode/geocode.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 import 'package:test_project/Models/driver.dart';
 import 'package:test_project/services/drivers.dart';
 import 'package:test_project/services/map_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../Models/Geolocalisation.dart';
 import '../Models/ride_request.dart';
 import '../Models/route.dart';
 import '../helpers/style.dart';
 import '../services/ride_requests.dart';
+import 'dart:developer';
 
 enum Show {
   LOADING,
@@ -118,13 +122,67 @@ class AppStateProvider with ChangeNotifier {
 
   AppStateProvider() {
     _setCustomMapPin();
-
-    _listemToDrivers();
+    _getSocket();
+    // _listemToDrivers();
     // location?.onLocationChanged.listen((LocationData location) {
     //   position = location;
     //   notifyListeners();
     // });
     _getUserLocation();
+  }
+
+  _getSocket() {
+    log("entro");
+    var token =
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.RUYGV9THR4fHnHDkZHinyHBYJSZK27z86Qbh8ijosPM";
+    // IO.Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/');
+
+    Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/', <String, dynamic>{
+      'transports': ['websocket'],
+      'query' : token
+    });
+
+    socket.on("connect", (_) =>
+    {
+      log('Connected'),
+      socket.emit("init")
+    });
+    socket.on("disconnect", (_) => print('Disconnected'));
+
+    // Socket socket = io(
+    //     'https://monitor-dot-stxi-340320.uc.r.appspot.com/',
+    //     OptionBuilder()
+    //         .setTransports(["websocket"]) // for Flutter or Dart VM
+    //         .disableAutoConnect()
+    //         .setQuery({'token': token})
+    //     //.setExtraHeaders({'token': token}) // optional
+    //         .build());
+    // socket.connect();
+    // log(socket.connected);
+    // if (socket.connected == false) {
+    //   socket.connect();
+    // }
+
+    // socket.on("connect", (_) => {
+    //   log("connected!"),
+    //   socket.emit("init")
+    // });
+    // socket.on("connect", (data) => {
+    //   log("conecto"),
+    //   socket.emit("init",{"lat": 25.681414578365192,
+    //     "lng": -100.3475796184339,
+    //     "distance": 5}
+    //   ),
+    //   socket.on("driverPositionUpdated", (data) => log(data))
+    // });
+    // socket.onConnect((_) {
+    //   log('connect');
+    //   // socket.emit('init');
+    // });
+    // socket.onError((data) => log(data));
+    // socket.on('driverPositionUpdated', (data) => log(data));
+    // socket.onDisconnect((_) => log('disconnect'));
+    // socket.on('fromServer', (_) => log(_));
   }
 
   setSize(double sizeDriver, double initialSize) {
@@ -138,7 +196,7 @@ class AppStateProvider with ChangeNotifier {
     carPin = await _getBytesFromAsset(
         path: imgurl, //paste the custom image path
         width: 100 // size of custom image as marker
-    );
+        );
     /*carPin = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5), 'assets/taxi.png');*/
 
@@ -183,7 +241,9 @@ class AppStateProvider with ChangeNotifier {
 
   //CONSUMIR SERVICIOS API PARA OBETENER LA LISTA DE CONDUCTORES
   _listemToDrivers() async {
-    allDriversStream = _driverService.getDrivers().whenComplete(() => _updateMarkers(allDriversStream));
+    allDriversStream = _driverService
+        .getDrivers()
+        .whenComplete(() => updateMarkers(allDriversStream));
     // if (allDriversStream != null) {
     //   _updateMarkers(allDriversStream);
     // }
@@ -214,7 +274,9 @@ class AppStateProvider with ChangeNotifier {
             location.getLocation().
             pickupLocationController.text = placeMark[0].name!;*/
             GeoCode geoCode = GeoCode();
-            var addresses = await geoCode.reverseGeocoding(latitude: position.target.latitude, longitude:  position.target.longitude);
+            var addresses = await geoCode.reverseGeocoding(
+                latitude: position.target.latitude,
+                longitude: position.target.longitude);
             pickupLocationController.text = addresses.streetAddress.toString();
             notifyListeners();
           }
@@ -382,10 +444,10 @@ class AppStateProvider with ChangeNotifier {
         flat: true,
         anchor: const Offset(1, 1),
         icon: BitmapDescriptor.fromBytes(carPin)));
-        // icon: carPin));
+    // icon: carPin));
   }
 
-  _updateMarkers(Future<Welcome?> drivers) {
+  updateMarkers(Future<Welcome?> drivers) {
 //    this code will ensure that when the driver markers are updated the location marker wont be deleted
     List<Marker> locationMarkers = _markers
         .where((element) => element.markerId.value == 'location')

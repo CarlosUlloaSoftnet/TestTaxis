@@ -22,6 +22,7 @@ import '../widgets/loading.dart';
 import '../widgets/payment_method_selection.dart';
 import '../widgets/pickup_destination_widget.dart';
 import '../widgets/trip_draggable.dart';
+import 'dart:developer';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
             visible: appState.visibleFAB,
             child: FloatingActionButton(
               onPressed: () {
+                log("entro al log");
                 appState.updateCamera();
               },
               backgroundColor: Colors.white,
