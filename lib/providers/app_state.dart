@@ -8,10 +8,13 @@ import 'package:geocode/geocode.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_project/Models/driver.dart';
+import 'package:test_project/Models/driversPositions.dart';
 import 'package:test_project/services/drivers.dart';
 import 'package:test_project/services/map_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
+import 'package:socket_io_client/socket_io_client.dart';
+import 'dart:convert' as convert;
 
 import '../Models/Geolocalisation.dart';
 import '../Models/ride_request.dart';
@@ -119,69 +122,43 @@ class AppStateProvider with ChangeNotifier {
 
   AppStateProvider() {
     _setCustomMapPin();
-    _getSocket();
     // _listemToDrivers();
     // location?.onLocationChanged.listen((LocationData location) {
     //   position = location;
     //   notifyListeners();
     // });
     _getUserLocation();
+    _getSocket();
   }
 
-  _getSocket() {
-    log("entro");
+  void _getSocket() {
     var token =
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.RUYGV9THR4fHnHDkZHinyHBYJSZK27z86Qbh8ijosPM";
-    // IO.Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/');
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.7o1Jv5Zm5cs8GJ6F4NKwX-uwrESSGrTSSLVfmKP-jA4";
+    Socket socket = io(
+        'https://monitor-dot-stxi-340320.uc.r.appspot.com/',
+        OptionBuilder()
+            .setTransports(['websocket'])
+            .setExtraHeaders({'token': token}).setQuery(
+            {'token': token}).build());
+    socket.on(
+        "connect",
+            (data) => {
+          socket.emit("init", {
+            // "lat": 25.681414578365192,
+            // "lng": -100.3475796184339,
+            "lat": _center!.latitude,
+            "lng": _center!.longitude,
+            "distance": 5
+          }),
+        });
+    socket.on("nearDrivers", (data) =>_convertData(data));
+  }
+  void _convertData(List<dynamic> jsonData){
+    log("Socket");
+    var data = jsonData.map((e) => DriversPositions.fromJson(e));
 
-    // Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/', <String, dynamic>{
-    //   'transports': ['websocket'],
-    //   // 'autoConnect': false,
-    //   'query': {
-    //     'token': token
-    // }});
-    //
-    // socket.on("connect", (_) =>
-    // {
-    //   log('Connected'),
-    //   socket.emit("init")
-    // });
-    // socket.on("disconnect", (_) => print('Disconnected'));
+    updateMarkers(data);
 
-    // Socket socket = io(
-    //     'https://monitor-dot-stxi-340320.uc.r.appspot.com/',
-    //     OptionBuilder()
-    //         .setTransports(["websocket"]) // for Flutter or Dart VM
-    //         .disableAutoConnect()
-    //         .setQuery({'token': token})
-    //     //.setExtraHeaders({'token': token}) // optional
-    //         .build());
-    // socket.connect();
-    // log(socket.connected);
-    // if (socket.connected == false) {
-    //   socket.connect();
-    // }
-
-    // socket.on("connect", (_) => {
-    //   log("connected!"),
-    //   socket.emit("init")
-    // });
-    // socket.on("connect", (data) => {
-    //   log("conecto"),
-    //   socket.emit("init",{"lat": 25.681414578365192,
-    //     "lng": -100.3475796184339,
-    //     "distance": 5}
-    //   ),
-    //   socket.on("driverPositionUpdated", (data) => log(data))
-    // });
-    // socket.onConnect((_) {
-    //   log('connect');
-    //   // socket.emit('init');
-    // });
-    // socket.onError((data) => log(data));
-    // socket.on('driverPositionUpdated', (data) => log(data));
-    // socket.onDisconnect((_) => log('disconnect'));
-    // socket.on('fromServer', (_) => log(_));
   }
 
   setSize(double sizeDriver, double initialSize) {
@@ -194,7 +171,7 @@ class AppStateProvider with ChangeNotifier {
     String imgurl = "assets/taxi.png";
     carPin = await _getBytesFromAsset(
         path: imgurl, //paste the custom image path
-        width: 100 // size of custom image as marker
+        width: 110 // size of custom image as marker
         );
     /*carPin = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5), 'assets/taxi.png');*/
@@ -225,6 +202,7 @@ class AppStateProvider with ChangeNotifier {
         target: LatLng(position!.latitude!, position!.longitude!),
       );
       _mapController.animateCamera(CameraUpdate.newCameraPosition(cPosition));*/
+      _getSocket();
       notifyListeners();
     }
   }
@@ -240,9 +218,9 @@ class AppStateProvider with ChangeNotifier {
 
   //CONSUMIR SERVICIOS API PARA OBETENER LA LISTA DE CONDUCTORES
   _listemToDrivers() async {
-    allDriversStream = _driverService
-        .getDrivers()
-        .whenComplete(() => updateMarkers(allDriversStream));
+    // allDriversStream = _driverService
+    //     .getDrivers()
+    //     .whenComplete(() => updateMarkers(allDriversStream));
     // if (allDriversStream != null) {
     //   _updateMarkers(allDriversStream);
     // }
@@ -441,12 +419,13 @@ class AppStateProvider with ChangeNotifier {
         draggable: false,
         zIndex: 2,
         flat: true,
+        infoWindow: InfoWindow(title: "Taxi : $driverId"),
         anchor: const Offset(1, 1),
         icon: BitmapDescriptor.fromBytes(carPin)));
     // icon: carPin));
   }
 
-  updateMarkers(Future<Welcome?> drivers) {
+  updateMarkers(Iterable<DriversPositions> drivers) {
 //    this code will ensure that when the driver markers are updated the location marker wont be deleted
     List<Marker> locationMarkers = _markers
         .where((element) => element.markerId.value == 'location')
@@ -456,8 +435,17 @@ class AppStateProvider with ChangeNotifier {
       _markers.add(locationMarkers[0]);
     }
 
+    for (var element in drivers) {
+      for (var value in element.actualLocation.coordinates) {
+        _addDriverMarker(
+            driverId: element.id.toString(),
+            position: LatLng(element.actualLocation.coordinates[1], element.actualLocation.coordinates[0]),
+            rotation: 10);
+      }
+    }
+
 //    here we are updating the drivers markers
-    drivers.then((value) => {
+    /*drivers.then((value) => {
           for (var driver in value!.data.locations)
             {
               _addDriverMarker(
@@ -466,7 +454,7 @@ class AppStateProvider with ChangeNotifier {
                   rotation: 10)
               // rotation: driver.position.heading);
             }
-        });
+        });*/
     notifyListeners();
   }
 
