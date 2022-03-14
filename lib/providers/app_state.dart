@@ -2,19 +2,16 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocode/geocode.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:socket_io_client/socket_io_client.dart';
 import 'package:test_project/Models/driver.dart';
 import 'package:test_project/services/drivers.dart';
 import 'package:test_project/services/map_requests.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../Models/Geolocalisation.dart';
 import '../Models/ride_request.dart';
@@ -137,17 +134,19 @@ class AppStateProvider with ChangeNotifier {
         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.RUYGV9THR4fHnHDkZHinyHBYJSZK27z86Qbh8ijosPM";
     // IO.Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/');
 
-    Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/', <String, dynamic>{
-      'transports': ['websocket'],
-      'query' : token
-    });
-
-    socket.on("connect", (_) =>
-    {
-      log('Connected'),
-      socket.emit("init")
-    });
-    socket.on("disconnect", (_) => print('Disconnected'));
+    // Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/', <String, dynamic>{
+    //   'transports': ['websocket'],
+    //   // 'autoConnect': false,
+    //   'query': {
+    //     'token': token
+    // }});
+    //
+    // socket.on("connect", (_) =>
+    // {
+    //   log('Connected'),
+    //   socket.emit("init")
+    // });
+    // socket.on("disconnect", (_) => print('Disconnected'));
 
     // Socket socket = io(
     //     'https://monitor-dot-stxi-340320.uc.r.appspot.com/',

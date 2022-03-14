@@ -23,6 +23,8 @@ import '../widgets/payment_method_selection.dart';
 import '../widgets/pickup_destination_widget.dart';
 import '../widgets/trip_draggable.dart';
 import 'dart:developer';
+import 'package:flutter/foundation.dart' as Foundation;
+import 'package:socket_io_client/socket_io_client.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -44,8 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
             visible: appState.visibleFAB,
             child: FloatingActionButton(
               onPressed: () {
-                log("entro al log");
                 appState.updateCamera();
+                _getSocket();
               },
               backgroundColor: Colors.white,
               child: const Icon(Icons.navigation, color: Colors.deepOrange),
@@ -258,7 +260,11 @@ class _MapScreenState extends State<MapScreen> {
             decoration: const BoxDecoration(
               color: white,
               borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20),),
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
             ),
             child: IconButton(
                 icon: const Icon(
@@ -966,4 +972,55 @@ class Utils {
         ]
     }
 ]''';
+}
+
+void _getSocket() {
+  log("entro sokcet");
+  var token =
+      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.7o1Jv5Zm5cs8GJ6F4NKwX-uwrESSGrTSSLVfmKP-jA4";
+  // IO.Socket socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/');
+
+  // var socket = IO.io('https://monitor-dot-stxi-340320.uc.r.appspot.com/', <String, dynamic>{
+  //   'transports': ['websocket'],
+  //   'autoConnect': false,
+  //   'query': {
+  //     'auth': token.toString()
+  //   }
+  // });
+  // socket.connect();
+
+  Socket socket = io(
+      'https://monitor-dot-stxi-340320.uc.r.appspot.com/',
+      OptionBuilder()
+          //.setTransports(Foundation.kIsWeb ? ['polling'] : ['websocket']) // for Flutter or Dart VM
+          .setTransports(['websocket']) // for Flutter or Dart VM
+          .setExtraHeaders({'token': token}).setQuery(
+              {'token': token}).build());
+  socket.on(
+      "connect",
+      (data) => {
+            log("connected"),
+            socket.emit("init", {
+              "lat": 25.681414578365192,
+              "lng": -100.3475796184339,
+              "distance": 5
+            }),
+
+          });
+  socket.on("nearDrivers", (data) => log(data.toString()));
+  // socket.connect();
+  // IO.OptionBuilder()
+  // //.setTransports(Foundation.kIsWeb ? ['polling'] : ['websocket']) // for Flutter or Dart VM
+  //     .setTransports(['websocket']) // for Flutter or Dart VM
+  //     .setExtraHeaders({'token': token})
+  //     .setQuery({'token': token})
+  //     .build()
+  // log(socket.connected.toString());
+  // if (socket.connected == false) {
+  //   socket.connect();
+  //   log(socket.connected.toString());
+  // }
+  //
+  // socket.on("connect", (_) => {log('Connected'), socket.emit("init")});
+  // socket.on("disconnect", (_) => print('Disconnected'));
 }
