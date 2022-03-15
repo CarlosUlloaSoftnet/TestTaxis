@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocode/geocode.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -64,19 +65,21 @@ class AppStateProvider with ChangeNotifier {
   TextEditingController pickupLocationController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
   LocationData? position;
-  DriverService _driverService = DriverService();
+  // DriverService _driverService = DriverService();
+  late Socket socket;
 
   double initialSize = 0.2;
   double sizeDriver = 0.2;
   var visibleFAB = false;
+
+  var businessId = "621e99fcd27526d5cdd71ae9";
+
   //  draggable to show
   Show show = Show.DESTINATION_SELECTION;
 
   //   taxi pin
   late Uint8List carPin;
-
-  //   location pin
-  late BitmapDescriptor locationPin;
+  late Uint8List pickUpPin;
 
   LatLng? get center => _center;
 
@@ -98,10 +101,12 @@ class AppStateProvider with ChangeNotifier {
   int timeCounter = 0;
   double percentage = 0;
   late Timer periodicTimer;
-  late String requestedDestination;
+  late String? requestedDestination;
+  late String? requestedOrigin;
 
   String requestStatus = "";
-  late double requestedDestinationLat;
+  late LatLng requestedDestinationLatLng;
+  late LatLng requestedOriginLatLng;
 
   late double requestedDestinationLng;
   late RideRequestModel rideRequestModel;
@@ -134,7 +139,7 @@ class AppStateProvider with ChangeNotifier {
   void _getSocket() {
     var token =
         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.7o1Jv5Zm5cs8GJ6F4NKwX-uwrESSGrTSSLVfmKP-jA4";
-    Socket socket = io(
+    socket = io(
         'https://monitor-dot-stxi-340320.uc.r.appspot.com/',
         OptionBuilder()
             .setTransports(['websocket'])
@@ -143,23 +148,39 @@ class AppStateProvider with ChangeNotifier {
     socket.on(
         "connect",
             (data) => {
+          log("CONNECTED"),
           socket.emit("init", {
             // "lat": 25.681414578365192,
             // "lng": -100.3475796184339,
             "lat": _center!.latitude,
             "lng": _center!.longitude,
-            "distance": 5
+            "distance": 25
           }),
         });
-    socket.on("nearDrivers", (data) =>_convertData(data));
+    socket.on("nearDrivers", (data) =>_createDriversListener(data));
+    socket.on('driverPositionUpdated', (id) => driverPositionUpdatedListener(id));
   }
-  void _convertData(List<dynamic> jsonData){
-    log("Socket");
+  void _createDriversListener(List<dynamic> jsonData){
+    log("DRIVERS: " + jsonData.toString());
     var data = jsonData.map((e) => DriversPositions.fromJson(e));
-
     updateMarkers(data);
-
   }
+
+  void driverPositionUpdatedListener (bId) {
+    log("UpdatedListener");
+    log("UPDATEpOSITIONS" + bId.toString());
+    if(bId == businessId){
+    log("driverPositionUpdatedListener");
+    socket.emit('refreshDrivers', {
+      // "lat": 25.681414578365192,
+      // "lng": -100.3475796184339,
+      "lat": _center!.latitude,
+      "lng": _center!.longitude,
+      "distance": 5
+    });
+    }
+  }
+
 
   setSize(double sizeDriver, double initialSize) {
     this.sizeDriver = sizeDriver;
@@ -168,16 +189,21 @@ class AppStateProvider with ChangeNotifier {
   }
 
   _setCustomMapPin() async {
-    String imgurl = "assets/taxi.png";
+    String car = "assets/taxi.png";
+    String pickUp = "assets/marker_orange.png";
     carPin = await _getBytesFromAsset(
-        path: imgurl, //paste the custom image path
-        width: 110 // size of custom image as marker
+        path: car,
+        width: 110
         );
+    pickUpPin = await _getBytesFromAsset(
+        path: pickUp,
+        width: 110
+    );
     /*carPin = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5), 'assets/taxi.png');*/
 
-    locationPin = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 2.5), 'images/pin.png');
+    // locationPin = await BitmapDescriptor.fromAssetImage(
+    //     const ImageConfiguration(devicePixelRatio: 2.5), 'images/pin.png');
   }
 
   Future<Uint8List> _getBytesFromAsset(
@@ -279,13 +305,13 @@ class AppStateProvider with ChangeNotifier {
         // anchor: Offset(0, 0.85),
         // zIndex: 3,
         infoWindow: InfoWindow(title: "Direccion", snippet: ""),
-        // icon: locationPin)
-        icon: BitmapDescriptor.defaultMarker));
+        icon: BitmapDescriptor.fromBytes(pickUpPin)));
+        // icon: BitmapDescriptor.defaultMarker));
     notifyListeners();
   }
 
   Future sendRequest(
-      {required LatLng origin, required LatLng destination}) async {
+      { LatLng? origin, LatLng? destination}) async {
     LatLng _org;
     LatLng _dest;
 
@@ -293,8 +319,8 @@ class AppStateProvider with ChangeNotifier {
       _org = pickupCoordinates;
       _dest = destinationCoordinates;
     } else {
-      _org = origin;
-      _dest = destination;
+      _org = origin!;
+      _dest = destination!;
     }
 
     RouteModel route =
@@ -303,9 +329,13 @@ class AppStateProvider with ChangeNotifier {
 
     if (origin == null) {
       //PRECIO DE VIAJE
-      // ridePrice =
-      //     double.parse((routeModel.distance.value / 500).toStringAsFixed(2));
-      ridePrice = 50.0;
+      // getRate(_dest, _org, businessId);
+      DriverService driver = DriverService();
+      var rateData = driver.getRate(_dest, _org, businessId);
+    // .toStringAsFixed(2)
+      await rateData.then((value) => {
+        ridePrice = double.parse(value.toString())
+      });
     }
     List<Marker> mks = _markers
         .where((element) => element.markerId.value == "location")
@@ -338,7 +368,7 @@ class AppStateProvider with ChangeNotifier {
         anchor: const Offset(0, 0.85),
         infoWindow:
             InfoWindow(title: destinationController.text, snippet: distance),
-        icon: locationPin));
+        icon: BitmapDescriptor.fromBytes(pickUpPin)));
     notifyListeners();
   }
 
@@ -348,8 +378,8 @@ class AppStateProvider with ChangeNotifier {
     String polyId = uuid.v1();
     _poly.add(Polyline(
         polylineId: PolylineId(polyId),
-        width: 12,
-        color: color ?? primary,
+        width: 10,
+        color: color ?? Colors.orange,
         onTap: () {},
         points: _convertToLatLong(_decodePoly(decodeRoute))));
     notifyListeners();
@@ -412,6 +442,7 @@ class AppStateProvider with ChangeNotifier {
       required String driverId}) {
     // var uuid = new Uuid();
     // String markerId = uuid.v1();
+    log("ADDMARKER: " + driverId);
     _markers.add(Marker(
         markerId: MarkerId(driverId),
         position: position,
@@ -426,6 +457,7 @@ class AppStateProvider with ChangeNotifier {
   }
 
   updateMarkers(Iterable<DriversPositions> drivers) {
+    log("UPDATEMARKERS");
 //    this code will ensure that when the driver markers are updated the location marker wont be deleted
     List<Marker> locationMarkers = _markers
         .where((element) => element.markerId.value == 'location')
@@ -459,6 +491,7 @@ class AppStateProvider with ChangeNotifier {
   }
 
   clearMarkers() {
+    log("CLEARMARKERS");
     _markers.clear();
     notifyListeners();
   }
@@ -478,6 +511,15 @@ class AppStateProvider with ChangeNotifier {
   changeMainContext(BuildContext context) {
     mainContext = context;
     notifyListeners();
+  }
+
+  changeRequestedDestination({String? reqDestination, required double lat, required double lng}) {
+    requestedDestination = reqDestination;
+    requestedDestinationLatLng = LatLng(lat, lng);
+  }
+  changeRequestedOrigin({String? reqDestination, required double lat, required double lng}) {
+    requestedOrigin = reqDestination;
+    requestedOriginLatLng = LatLng(lat, lng);
   }
 
   changeWidgetShowed({required Show showWidget}) {

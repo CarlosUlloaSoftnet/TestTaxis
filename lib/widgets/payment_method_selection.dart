@@ -39,7 +39,7 @@ class PaymentMethodSelectionWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Text(
-                    "Como pagaras,\n\$100",
+                    "Como pagaras,\n\$${appState.ridePrice}",
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
                   ),
                 ),

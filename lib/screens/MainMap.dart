@@ -181,9 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Visibility(
                     // visible: false,
                     visible: appState.show == Show.PICKUP_SELECTION,
-                    child: PickupSelectionWidget(
-                      scaffoldState: scaffoldState,
-                    ),
+                    child: PickupSelectionWidget(),
                   ),
                   //  ANCHOR Draggable PAYMENT METHOD
                   Visibility(

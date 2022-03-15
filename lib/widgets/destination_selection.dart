@@ -54,7 +54,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
       }
     });
     return Padding(
-      padding: const EdgeInsets.only(top: 80),
+      padding: EdgeInsets.only(top: 80.h),
       child: SlidingUpPanelWidget(
         enableOnTap: false,
           controlHeight: 120.0.h,
@@ -76,9 +76,9 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
               // controller: myscrollController,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                const Icon(
+                Icon(
                   Icons.remove,
-                  size: 40,
+                  size: 20.h,
                   color: grey,
                 ),
                 Padding(
@@ -118,7 +118,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                     onChanged: (value) {
                       if (value.isNotEmpty) {
                         autoCompleteSearch(value);
-                      } else if (predictions.isNotEmpty && mounted) {
+                      } else if (predictions.isEmpty) {
                         setState(() {
                           predictions = [];
                         });
@@ -182,15 +182,15 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                                         result.result!.geometry!.location!.lat!;
                                     double lng =
                                         result.result!.geometry!.location!.lng!;
-                                    // appState.changeRequestedDestination(
-                                    //     reqDestination: p.description, lat: lat, lng: lng);
+                                    appState.changeRequestedOrigin(
+                                        reqDestination: predictions[index].description, lat: lat, lng: lng);
                                     appState.updateDestination(
                                         destination:
                                             predictions[index].description);
                                     LatLng coordinates = LatLng(lat, lng);
                                     appState.setDestination(
                                         coordinates: coordinates);
-                                    appState.addPickupMarker(appState.center!);
+                                    // appState.addPickupMarker(coordinates);
 
                                     appState.changeWidgetShowed(
                                         showWidget: Show.PICKUP_SELECTION);
@@ -254,6 +254,9 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
   }
 
   void autoCompleteSearch(String value) async {
+    if(value.isEmpty){setState(() {
+      predictions = [];
+    });}
     var result = await googlePlace.autocomplete.get(value);
     if (result != null && result.predictions != null && mounted) {
       setState(() {
