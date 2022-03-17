@@ -70,7 +70,8 @@ class AppStateProvider with ChangeNotifier {
 
   double initialSize = 0.2;
   double sizeDriver = 0.2;
-  var visibleFAB = false;
+  bool visibleFAB = false;
+  double paddingFAB = 130.h;
 
   var businessId = "621e99fcd27526d5cdd71ae9";
 
@@ -136,6 +137,16 @@ class AppStateProvider with ChangeNotifier {
     _getSocket();
   }
 
+  void setVisibleFAB(bool visible){
+    visibleFAB = visible;
+    notifyListeners();
+  }
+
+  void setPaddingFAB(double padding){
+    paddingFAB = padding;
+    notifyListeners();
+  }
+
   void _getSocket() {
     var token =
         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJpYXQiOjE2NDYxNzg4OTYsImV4cCI6MTY1Mzk1NDg5Nn0.7o1Jv5Zm5cs8GJ6F4NKwX-uwrESSGrTSSLVfmKP-jA4";
@@ -190,7 +201,7 @@ class AppStateProvider with ChangeNotifier {
 
   _setCustomMapPin() async {
     String car = "assets/taxi.png";
-    String pickUp = "assets/marker_orange.png";
+    String pickUp = "assets/pin_pickup.png";
     carPin = await _getBytesFromAsset(
         path: car,
         width: 110
@@ -346,6 +357,12 @@ class AppStateProvider with ChangeNotifier {
 // ! another method will be created just to draw the polys and add markers
     _addLocationMarker(destinationCoordinates, routeModel.distance!.text!);
     _center = destinationCoordinates;
+    // LatLng updateCamera = LatLng(pickupCoordinates.latitude, destinationCoordinates.longitude);
+    // CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(updateCamera, 13);
+    LatLngBounds bound = LatLngBounds(southwest: pickupCoordinates, northeast: destinationCoordinates);
+    CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bound, 13);
+    _mapController.animateCamera(cameraUpdate);
+    _mapController.animateCamera(cameraUpdate);
     if (_poly != null) {
       _createRoute(route.points!, color: Colors.deepOrange);
     }
@@ -378,7 +395,7 @@ class AppStateProvider with ChangeNotifier {
     String polyId = uuid.v1();
     _poly.add(Polyline(
         polylineId: PolylineId(polyId),
-        width: 10,
+        width: 5,
         color: color ?? Colors.orange,
         onTap: () {},
         points: _convertToLatLong(_decodePoly(decodeRoute))));

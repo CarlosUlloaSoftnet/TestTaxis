@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_sliding_up_panel/sliding_up_panel_widget.dart';
+import 'package:geocode/geocode.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:google_place/google_place.dart';
@@ -30,19 +31,42 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
   @override
   void initState() {
     googlePlace = GooglePlace(GOOGLE_MAPS_API_KEY);
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
-    appState.visibleFAB = false;
+    initLocation(appState);
 
     return Padding(
       padding: EdgeInsets.only(top: 80.h),
       child: SlidingUpPanelWidget(
+        dragEnd: (details){
+          switch(panelController.status){
+            case SlidingUpPanelStatus.expanded:
+              appState.setVisibleFAB(false);
+              break;
+            case SlidingUpPanelStatus.collapsed:
+              appState.setPaddingFAB(200.h);
+              appState.setVisibleFAB(true);
+              FocusScope.of(context).unfocus();
+              break;
+            case SlidingUpPanelStatus.anchored:
+              appState.setPaddingFAB(260.h);
+              appState.setVisibleFAB(true);
+              break;
+            case SlidingUpPanelStatus.hidden:
+            // TODO: Handle this case.
+              break;
+            case SlidingUpPanelStatus.dragging:
+            // TODO: Handle this case.
+              break;
+          }
+        },
         enableOnTap: false,
-        controlHeight: 180.0.h,
+        controlHeight: 220.0.h,
         anchor: 0.4.w,
         panelController: panelController,
         child: Container(
@@ -69,7 +93,8 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Mueva el pin para ajustar el punto de encuentro",
+                    // "Mueva el pin para ajustar el punto de encuentro",
+                    "",
                     style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
@@ -82,7 +107,7 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                 height: 8.h,
               ),
               Padding(
-                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 10.h),
                 child: Container(
                   // color: grey.withOpacity(.3),
                   child: TextFormField(
@@ -155,7 +180,7 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                   ),
                 ),
               ),Padding(
-                padding: const EdgeInsets.only(top: 30),
+                padding: EdgeInsets.only(top: 10.h),
                 child: SizedBox(
                   height: heightPanelPickup,
                   child: ListView.builder(
@@ -200,7 +225,7 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
               ),
               SizedBox(
                 width: double.infinity,
-                height: 48.h,
+                height: 40.h,
                 child: Padding(
                   padding: EdgeInsets.only(
                     left: 15.0.w,
@@ -208,6 +233,7 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                   ),
                   child: ElevatedButton(
                     onPressed: () async {
+                      appState.setPaddingFAB(160.h);
                       await appState.sendRequest();
                       appState.changeWidgetShowed(
                           showWidget: Show.PAYMENT_METHOD_SELECTION);
@@ -236,5 +262,19 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
         predictions = result.predictions!;
       });
     }
+  }
+
+  Future<void> initLocation(AppStateProvider appState) async {
+    GeoCode geoCode = GeoCode();
+    var addresses = await geoCode.reverseGeocoding(
+        latitude: appState.center!.latitude,
+        longitude: appState.center!.longitude);
+    appState.updateDestination(destination: addresses.streetAddress.toString());
+    // LatLng coordinates = LatLng(lat, lng);
+    LatLng coordinates = LatLng(appState.center!.latitude, appState.center!.longitude);
+    appState.setPickCoordinates(coordinates: coordinates);
+    appState.changePickupLocationAddress(
+        address: addresses.streetAddress.toString());
+    appState.notifyListeners();
   }
 }

@@ -56,7 +56,30 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
     return Padding(
       padding: EdgeInsets.only(top: 80.h),
       child: SlidingUpPanelWidget(
-        enableOnTap: false,
+          dragEnd: (details){
+            switch(panelController.status){
+
+              case SlidingUpPanelStatus.expanded:
+                appState.setVisibleFAB(false);
+                break;
+              case SlidingUpPanelStatus.collapsed:
+                appState.setPaddingFAB(130.h);
+                appState.setVisibleFAB(true);
+                FocusScope.of(context).unfocus();
+                break;
+              case SlidingUpPanelStatus.anchored:
+                appState.setPaddingFAB(260.h);
+                appState.setVisibleFAB(true);
+                break;
+              case SlidingUpPanelStatus.hidden:
+                // TODO: Handle this case.
+                break;
+              case SlidingUpPanelStatus.dragging:
+                // TODO: Handle this case.
+                break;
+            }
+          },
+          enableOnTap: false,
           controlHeight: 120.0.h,
           anchor: 0.4,
           panelController: panelController,
@@ -91,36 +114,13 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                       appState.visibleFAB = false;
                       SharedPreferences preferences =
                           await SharedPreferences.getInstance();
-                      /*Prediction? p = await PlacesAutocomplete.show(
-                          context: context,
-                          apiKey: GOOGLE_MAPS_API_KEY,
-                          mode: Mode.overlay, // Mode.fullscreen
-                          // language: "pt",
-                          components: [
-                            new Component(Component.country,
-                                preferences.getString(COUNTRY))
-                          ]);*/
-                      // PlacesDetailsResponse detail =
-                      // await places.getDetailsByPlaceId(p?.placeId);
-                      /* double lat = detail.result.geometry?.location.lat;
-                      double lng = detail.result.geometry.location.lng;
-                      appState.changeRequestedDestination(
-                          reqDestination: p.description, lat: lat, lng: lng);
-                      appState.updateDestination(destination: p.description);
-                      LatLng coordinates = LatLng(lat, lng);
-                      // appState.setDestination(coordinates: coordinates);
-                      appState.addPickupMarker(appState.center!);
-
-                      appState.changeWidgetShowed(
-                          showWidget: Show.PICKUP_SELECTION);*/
-                      // appState.sendRequest(coordinates: coordinates);
                     },
                     onChanged: (value) {
                       if (value.isNotEmpty) {
                         autoCompleteSearch(value);
-                      } else if (predictions.isEmpty) {
+                      } else if (predictions.isNotEmpty && mounted) {
                         setState(() {
-                          predictions = [];
+                          predictions.clear();
                         });
                       }
                     },
@@ -137,15 +137,6 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                           style: BorderStyle.none,
                         ),
                       ),
-                      /*icon: Container(
-                        margin: EdgeInsets.only(left: 20, bottom: 15),
-                        width: 10,
-                        height: 10,
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.orange,
-                        ),
-                      ),*/
                       hintText: "A donde vamos?",
                       hintStyle: TextStyle(
                           color: Colors.orange,
@@ -168,7 +159,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                                 color: Colors.deepOrange,
                               ),
                             ),
-                            title: Text(predictions[index].description!),
+                            title: Text(predictions[index].description!, style: const TextStyle(color: Colors.deepOrange),),
                             onTap: () async {
                               debugPrint(predictions[index].placeId);
                               if (predictions[index] != null) {
@@ -194,6 +185,7 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
 
                                     appState.changeWidgetShowed(
                                         showWidget: Show.PICKUP_SELECTION);
+                                    appState.setPaddingFAB(260.h);
                                   }
                                 }
                               }
@@ -203,50 +195,6 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
                         }),
                   ),
                 ),
-                /*ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.deepOrange[300],
-                    child: const Icon(
-                      Icons.home,
-                      color: white,
-                    ),
-                  ),
-                  title: const Text("Casa"),
-                  subtitle: Text("Mariano de abasolo"),
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.deepOrange[300],
-                    child: const Icon(
-                      Icons.work,
-                      color: white,
-                    ),
-                  ),
-                  title: const Text("Trabajo"),
-                  subtitle: const Text("Sayula 215"),
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.grey.withOpacity(0.18),
-                    child: const Icon(
-                      Icons.history,
-                      color: primary,
-                    ),
-                  ),
-                  title: const Text("Dirección recinente"),
-                  subtitle: const Text("Av. Félix U. Gómez"),
-                ),
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.grey.withOpacity(.18),
-                    child: const Icon(
-                      Icons.history,
-                      color: primary,
-                    ),
-                  ),
-                  title: const Text("Dirección recinente"),
-                  subtitle: const Text("Av. Benito Juárez"),
-                ),*/
               ],
             ),
           )),
@@ -254,9 +202,6 @@ class DestinationSelectionWidget extends State<DestinationWidget> {
   }
 
   void autoCompleteSearch(String value) async {
-    if(value.isEmpty){setState(() {
-      predictions = [];
-    });}
     var result = await googlePlace.autocomplete.get(value);
     if (result != null && result.predictions != null && mounted) {
       setState(() {

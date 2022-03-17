@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return SafeArea(
       child: Scaffold(
         floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: 130.h),
+          padding: EdgeInsets.only(bottom: appState.paddingFAB),
           child: Visibility(
             visible: appState.visibleFAB,
             child: FloatingActionButton(
@@ -187,9 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Visibility(
                       // visible: false,
                       visible: appState.show == Show.PAYMENT_METHOD_SELECTION,
-                      child: PaymentMethodSelectionWidget(
-                        scaffoldState: scaffoldState,
-                      )),
+                      child: const PaymentMethodSelectionWidget()),
                   //  ANCHOR Draggable DRIVER
                   Visibility(
                       // visible: false,
