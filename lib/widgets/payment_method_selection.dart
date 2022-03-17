@@ -33,6 +33,7 @@ class _PaymentMethodSelectionWidgetState
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
+    Color? colorCard = Colors.grey[300];
     KeyboardVisibilityController().onChange.listen((isVisible) {
       if (isVisible) {
       } else {
@@ -66,7 +67,7 @@ class _PaymentMethodSelectionWidgetState
           }
         },
         enableOnTap: false,
-        controlHeight: 200.0.h,
+        controlHeight: 210.0.h,
         anchor: 0.4,
         panelController: panelController,
         child: Container(
@@ -101,53 +102,211 @@ class _PaymentMethodSelectionWidgetState
                       children: <Widget>[
                         Card(
                             elevation: 150,
-                            color: Colors.grey[300],
+                            color: colorCard,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             margin: EdgeInsets.all(5.h),
-                            child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5.h, vertical: 5.w),
-                                child: Row(
-                                  children: [
-                                    const Image(
-                                      image: NetworkImage(
-                                          'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
-                                      height: 55,
-                                      width: 85,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 15.w, right: 15.w),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Sedan",
-                                            style: TextStyle(
-                                                fontSize: 18.sp,
-                                                color: Colors.deepOrange),
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext contextDialog) {
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0)),
+                                        child: SizedBox(
+                                          height: 180.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text(
+                                                "Viaje",
+                                                style: TextStyle(
+                                                    color: Colors.orange,
+                                                    fontSize: 22.sp,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              Text(
+                                                "Tipo de vehículo: ${appState.ratesList[0].type}",
+                                                style: TextStyle(
+                                                    color: Colors.orange,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              // SizedBox(
+                                              //   height: 10.h,
+                                              // ),
+                                              // Text(
+                                              //   "Numero de pasajeros: 4",
+                                              //   style: TextStyle(
+                                              //       color: Colors.orange,
+                                              //       fontWeight:
+                                              //           FontWeight.bold),
+                                              // ),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Tarifa estimada: ",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    "\$${appState.ratesList[0].estimate}",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 22.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary: Colors
+                                                                .deepOrange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Cancelar",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                            confirm();
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary:
+                                                                Colors.orange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Confirmar viaje",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(
-                                            height: 10.h,
-                                          ),
-                                          Text("\$${appState.ridePrice}",
-                                              style: TextStyle(
-                                                  fontSize: 16.sp,
-                                                  color: Colors.deepOrange,
-                                                  fontWeight: FontWeight.bold)),
-                                        ],
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.h, vertical: 5.w),
+                                  child: Row(
+                                    children: [
+                                      const Image(
+                                        image: NetworkImage(
+                                            'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
+                                        height: 55,
+                                        width: 85,
+                                        fit: BoxFit.cover,
                                       ),
-                                    )
-                                    // ListTile(
-                                    //   title: const Text('Sedan'),
-                                    //   subtitle: Text("\$${appState.ridePrice}"),
-                                    // )
-                                  ],
-                                ))),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 15.w, right: 15.w),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${appState.ratesList[0].type}",
+                                              style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  color: Colors.deepOrange),
+                                            ),
+                                            SizedBox(
+                                              height: 10.h,
+                                            ),
+                                            Text(
+                                                "\$${appState.ratesList[0].estimate}",
+                                                style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    color: Colors.deepOrange,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ],
+                                        ),
+                                      )
+                                      // ListTile(
+                                      //   title: const Text('Sedan'),
+                                      //   subtitle: Text("\$${appState.ridePrice}"),
+                                      // )
+                                    ],
+                                  )),
+                            )),
                         Card(
                             elevation: 150,
                             color: Colors.grey[300],
@@ -155,49 +314,206 @@ class _PaymentMethodSelectionWidgetState
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             margin: EdgeInsets.all(5.h),
-                            child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5.h, vertical: 5.w),
-                                child: Row(
-                                  children: [
-                                    const Image(
-                                      image: NetworkImage(
-                                          'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
-                                      height: 55,
-                                      width: 85,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 15.w, right: 15.w),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "SUV",
-                                            style: TextStyle(
-                                                fontSize: 18.sp,
-                                                color: Colors.deepOrange),
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext contextDialog) {
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0)),
+                                        child: SizedBox(
+                                          height: 180.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text(
+                                                "Viaje",
+                                                style: TextStyle(
+                                                    color: Colors.orange,
+                                                    fontSize: 22.sp,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              Text(
+                                                "Tipo de vehículo: ${appState.ratesList[1].type}",
+                                                style: TextStyle(
+                                                    color: Colors.orange,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              // SizedBox(
+                                              //   height: 10.h,
+                                              // ),
+                                              // Text(
+                                              //   "Numero de pasajeros: 6",
+                                              //   style: TextStyle(
+                                              //       color: Colors.orange,
+                                              //       fontWeight:
+                                              //       FontWeight.bold),
+                                              // ),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Tarifa estimada: ",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    "\$${appState.ratesList[1].estimate}",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 22.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary: Colors
+                                                                .deepOrange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Cancelar",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                            confirm();
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary:
+                                                                Colors.orange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Confirmar viaje",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(
-                                            height: 10.h,
-                                          ),
-                                          Text(
-                                              "\$${(appState.ridePrice + 60).toStringAsFixed(2)}",
-                                              style: TextStyle(
-                                                  fontSize: 16.sp,
-                                                  color: Colors.deepOrange,
-                                                  fontWeight: FontWeight.bold)),
-                                        ],
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.h, vertical: 5.w),
+                                  child: Row(
+                                    children: [
+                                      const Image(
+                                        image: NetworkImage(
+                                            'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
+                                        height: 55,
+                                        width: 85,
+                                        fit: BoxFit.cover,
                                       ),
-                                    )
-                                    // ListTile(
-                                    //   title: const Text('Sedan'),
-                                    //   subtitle: Text("\$${appState.ridePrice}"),
-                                    // )
-                                  ],
-                                ))),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 15.w, right: 15.w),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${appState.ratesList[1].type}",
+                                              style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  color: Colors.deepOrange),
+                                            ),
+                                            SizedBox(
+                                              height: 10.h,
+                                            ),
+                                            Text(
+                                                "\$${appState.ratesList[1].estimate}",
+                                                style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    color: Colors.deepOrange,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ],
+                                        ),
+                                      )
+                                      // ListTile(
+                                      //   title: const Text('Sedan'),
+                                      //   subtitle: Text("\$${appState.ridePrice}"),
+                                      // )
+                                    ],
+                                  )),
+                            )),
                         Card(
                             elevation: 150,
                             color: Colors.grey[300],
@@ -205,157 +521,352 @@ class _PaymentMethodSelectionWidgetState
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             margin: EdgeInsets.all(5.h),
-                            child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5.h, vertical: 5.w),
-                                child: Row(
-                                  children: [
-                                    const Image(
-                                      image: NetworkImage(
-                                          'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
-                                      height: 55,
-                                      width: 85,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 15.w, right: 15.w),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Van",
-                                            style: TextStyle(
-                                                fontSize: 18.sp,
-                                                color: Colors.deepOrange),
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext contextDialog) {
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0)),
+                                        child: SizedBox(
+                                          height: 180.h,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text(
+                                                "Viaje",
+                                                style: TextStyle(
+                                                    color: Colors.orange,
+                                                    fontSize: 22.sp,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 5.h,
+                                              ),
+                                              Text(
+                                                "Tipo de vehículo: ${appState.ratesList[2].type}",
+                                                style: const TextStyle(
+                                                    color: Colors.orange,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              // SizedBox(
+                                              //   height: 10.h,
+                                              // ),
+                                              // Text(
+                                              //   "Numero de pasajeros: 8",
+                                              //   style: TextStyle(
+                                              //       color: Colors.orange,
+                                              //       fontWeight:
+                                              //       FontWeight.bold),
+                                              // ),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "Tarifa estimada: ",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 18.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  Text(
+                                                    "\$${appState.ratesList[2].estimate}",
+                                                    style: TextStyle(
+                                                        color: Colors.orange,
+                                                        fontSize: 22.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Divider(),
+                                              SizedBox(
+                                                height: 15.h,
+                                              ),
+                                              Row(
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary: Colors
+                                                                .deepOrange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Cancelar",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8.h,
+                                                          right: 8.h),
+                                                      child: SizedBox(
+                                                        height: 35.h,
+                                                        child: ElevatedButton(
+                                                          onPressed: () async {
+                                                            Navigator.pop(
+                                                                contextDialog);
+                                                            confirm();
+                                                          },
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary:
+                                                                Colors.orange,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          30.0),
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            "Confirmar viaje",
+                                                            style: TextStyle(
+                                                                color: white,
+                                                                fontSize:
+                                                                    14.sp),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                          SizedBox(
-                                            height: 10.h,
-                                          ),
-                                          Text(
-                                              "\$${(appState.ridePrice + 100).toStringAsFixed(2)}",
-                                              style: TextStyle(
-                                                  fontSize: 16.sp,
-                                                  color: Colors.deepOrange,
-                                                  fontWeight: FontWeight.bold)),
-                                        ],
+                                        ),
+                                      );
+                                    });
+                              },
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 5.h, vertical: 5.w),
+                                  child: Row(
+                                    children: [
+                                      const Image(
+                                        image: NetworkImage(
+                                            'https://cdn0.iconfinder.com/data/icons/isometric-city-basic-transport/480/car-taxi-front-01-512.png'),
+                                        height: 55,
+                                        width: 85,
+                                        fit: BoxFit.cover,
                                       ),
-                                    )
-                                    // ListTile(
-                                    //   title: const Text('Sedan'),
-                                    //   subtitle: Text("\$${appState.ridePrice}"),
-                                    // )
-                                  ],
-                                ))),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 15.w, right: 15.w),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${appState.ratesList[2].type}",
+                                              style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  color: Colors.deepOrange),
+                                            ),
+                                            SizedBox(
+                                              height: 10.h,
+                                            ),
+                                            Text(
+                                                "\$${appState.ratesList[2].estimate}",
+                                                style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    color: Colors.deepOrange,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ],
+                                        ),
+                                      )
+                                      // ListTile(
+                                      //   title: const Text('Sedan'),
+                                      //   subtitle: Text("\$${appState.ridePrice}"),
+                                      // )
+                                    ],
+                                  )),
+                            )),
                       ],
                     ),
                   ),
-                  SizedBox(height: 15.h,),
                   SizedBox(
-                    width: double.infinity,
-                    height: 40.h,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 15.0.w,
-                        right: 15.0.w,
+                    height: 15.h,
+                  ),
+                  const Divider(),
+                  Row(
+                    children: <Widget>[
+                      const Image(
+                        image: AssetImage('assets/dollar.png'),
+                        height: 15,
+                        width: 25,
+                        fit: BoxFit.cover,
                       ),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          panelController.hide();
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Dialog(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          20.0)), //this right here
-                                  child: SizedBox(
-                                    height: 200,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Loading(),
-                                          SizedBox(
-                                            height: 10.h,
-                                          ),
-                                          Expanded(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  "Buscando un conductor",
-                                                  style: TextStyle(
-                                                      color: Colors.deepOrange,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 18.sp),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 30.h,
-                                          ),
-                                          LinearPercentIndicator(
-                                            lineHeight: 4,
-                                            animation: true,
-                                            animationDuration: 100000,
-                                            percent: 1,
-                                            backgroundColor:
-                                                Colors.grey.withOpacity(0.2),
-                                            progressColor: Colors.deepOrange,
-                                          ),
-                                          SizedBox(
-                                            height: 20.h,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              OutlinedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                    panelController.anchor();
-                                                    /*appState
-                                                              .cancelRequest();*/
-                                                  },
-                                                  style: OutlinedButton.styleFrom(
-                                                      side: const BorderSide(
-                                                          color:
-                                                              Colors.deepOrange)),
-                                                  child: Text(
-                                                    "Cancelar solicitud",
-                                                    style: TextStyle(
-                                                        color: Colors.deepOrange,
-                                                        fontSize: 15.sp),
-                                                  )),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              });
-                        },
-                        style: ElevatedButton.styleFrom(primary: Colors.orange),
-                        child: Text(
-                          "Confirmar viaje",
-                          style: TextStyle(color: white, fontSize: 16.sp),
+                      SizedBox(
+                        width: 8.w,
+                      ),
+                      Text(
+                        "Efectivo",
+                        style: TextStyle(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.sp),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20.h,
+                        color: grey,
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              cancel(appState);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.deepOrange,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            child: Text(
+                              "Cancelar viaje",
+                              style: TextStyle(color: white, fontSize: 14.sp),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ]),
           ),
         ),
       ),
     );
+  }
+
+  void cancel(AppStateProvider appState) {
+    appState.setPaddingFAB(160.h);
+    // await appState.sendRequest();
+    appState.updateDestination(destination: "");
+    appState.changePickupLocationAddress(address: "");
+    appState.changeWidgetShowed(showWidget: Show.DESTINATION_SELECTION);
+  }
+
+  void confirm() {
+    panelController.hide();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)), //this right here
+            child: SizedBox(
+              height: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Loading(),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Buscando un conductor",
+                            style: TextStyle(
+                                color: Colors.deepOrange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.sp),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30.h,
+                    ),
+                    LinearPercentIndicator(
+                      lineHeight: 4,
+                      animation: true,
+                      animationDuration: 100000,
+                      percent: 1,
+                      backgroundColor: Colors.grey.withOpacity(0.2),
+                      progressColor: Colors.deepOrange,
+                    ),
+                    SizedBox(
+                      height: 20.h,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        OutlinedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              panelController.anchor();
+                              /*appState
+                                                              .cancelRequest();*/
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Colors.deepOrange),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            child: Text(
+                              "Cancelar solicitud",
+                              style: TextStyle(
+                                  color: Colors.deepOrange, fontSize: 15.sp),
+                            )),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 }

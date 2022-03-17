@@ -38,13 +38,14 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
   @override
   Widget build(BuildContext context) {
     AppStateProvider appState = Provider.of<AppStateProvider>(context);
-    initLocation(appState);
+    // LatLng currentLocation = const LatLng(25.681414578365192, -100.3475796184339);
+    // appState.addPickupMarker(currentLocation);
 
     return Padding(
       padding: EdgeInsets.only(top: 80.h),
       child: SlidingUpPanelWidget(
-        dragEnd: (details){
-          switch(panelController.status){
+        dragEnd: (details) {
+          switch (panelController.status) {
             case SlidingUpPanelStatus.expanded:
               appState.setVisibleFAB(false);
               break;
@@ -58,15 +59,15 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
               appState.setVisibleFAB(true);
               break;
             case SlidingUpPanelStatus.hidden:
-            // TODO: Handle this case.
+              // TODO: Handle this case.
               break;
             case SlidingUpPanelStatus.dragging:
-            // TODO: Handle this case.
+              // TODO: Handle this case.
               break;
           }
         },
         enableOnTap: false,
-        controlHeight: 220.0.h,
+        controlHeight: 180.0.h,
         anchor: 0.4.w,
         panelController: panelController,
         child: Container(
@@ -94,7 +95,7 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                 children: [
                   Text(
                     // "Mueva el pin para ajustar el punto de encuentro",
-                    "",
+                    "Cotizar viaje desde mi ubicación",
                     style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
@@ -110,76 +111,80 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                 padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 10.h),
                 child: Container(
                   // color: grey.withOpacity(.3),
-                  child: TextFormField(
-                    textAlign: TextAlign.center,
-                    onTap: () async {
-                      panelController.expand();
-                      /*SharedPreferences preferences =
-                        await SharedPreferences.getInstance();
-                        Prediction p = await PlacesAutocomplete.show(
-                            context: context,
-                            apiKey: GOOGLE_MAPS_API_KEY,
-                            mode: Mode.overlay, // Mode.fullscreen
-                            // language: "pt",
-                            components: [
-                              new Component(Component.country,
-                                  preferences.getString(COUNTRY))
-                            ]);
-                        PlacesDetailsResponse detail =
-                        await places.getDetailsByPlaceId(p.placeId);
-                        double lat = detail.result.geometry.location.lat;
-                        double lng = detail.result.geometry.location.lng;
-                        appState.changeRequestedDestination(
-                            reqDestination: p.description, lat: lat, lng: lng);
-                        appState.updateDestination(destination: p.description);
-                        LatLng coordinates = LatLng(lat, lng);*/
-                      // appState.setPickCoordinates(coordinates: coordinates);
-                      // appState.changePickupLocationAddress(
-                      //     address: p.description);
-                      // appState.changePickupLocationAddress(
-                      //     address: "DESCRIPCION");
-                    },
-                    onChanged: (value) {
-                      if (value.isNotEmpty) {
-                        log("valueIsNotEmpty");
-                        setState(() {
-                          heightPanelPickup = 400.h;
-                          log(heightPanelPickup.toString());
-                        });
-                        autoCompleteSearch(value);
-                      } else if (predictions.isEmpty) {
-                        setState(() {
-                          predictions = [];
-                        });
-                      }
-                    },
-                    textInputAction: TextInputAction.go,
-                    controller: appState.pickupLocationController,
-                    cursorColor: Colors.orange.shade900,
-                    style: TextStyle(
-                        fontSize: 18.sp,
-                        color: Colors.deepOrange,
-                        fontWeight: FontWeight.bold),
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 10.0),
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          width: 0,
-                          style: BorderStyle.none,
-                        ),
-                      ),
-                      hintText: "Seleccion el origen",
-                      hintStyle: TextStyle(
-                          color: Colors.orange,
+                  child: Visibility(
+                    visible: false,
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      onTap: () async {
+                        panelController.expand();
+                        /*SharedPreferences preferences =
+                          await SharedPreferences.getInstance();
+                          Prediction p = await PlacesAutocomplete.show(
+                              context: context,
+                              apiKey: GOOGLE_MAPS_API_KEY,
+                              mode: Mode.overlay, // Mode.fullscreen
+                              // language: "pt",
+                              components: [
+                                new Component(Component.country,
+                                    preferences.getString(COUNTRY))
+                              ]);
+                          PlacesDetailsResponse detail =
+                          await places.getDetailsByPlaceId(p.placeId);
+                          double lat = detail.result.geometry.location.lat;
+                          double lng = detail.result.geometry.location.lng;
+                          appState.changeRequestedDestination(
+                              reqDestination: p.description, lat: lat, lng: lng);
+                          appState.updateDestination(destination: p.description);
+                          LatLng coordinates = LatLng(lat, lng);*/
+                        // appState.setPickCoordinates(coordinates: coordinates);
+                        // appState.changePickupLocationAddress(
+                        //     address: p.description);
+                        // appState.changePickupLocationAddress(
+                        //     address: "DESCRIPCION");
+                      },
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          log("valueIsNotEmpty");
+                          setState(() {
+                            heightPanelPickup = 400.h;
+                            log(heightPanelPickup.toString());
+                          });
+                          autoCompleteSearch(value);
+                        } else if (predictions.isEmpty) {
+                          setState(() {
+                            predictions = [];
+                          });
+                        }
+                      },
+                      textInputAction: TextInputAction.go,
+                      controller: appState.pickupLocationController,
+                      cursorColor: Colors.orange.shade900,
+                      style: TextStyle(
                           fontSize: 18.sp,
+                          color: Colors.deepOrange,
                           fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 20.0, horizontal: 10.0),
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            width: 0,
+                            style: BorderStyle.none,
+                          ),
+                        ),
+                        hintText: "Seleccion el origen",
+                        hintStyle: TextStyle(
+                            color: Colors.orange,
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
-              ),Padding(
+              ),
+              Padding(
                 padding: EdgeInsets.only(top: 10.h),
                 child: SizedBox(
                   height: heightPanelPickup,
@@ -201,18 +206,26 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                                 .get(predictions[index].placeId!);
                             if (result != null &&
                                 result.result != null &&
-                                mounted){
+                                mounted) {
                               if (result.result!.geometry != null) {
                                 double lat =
-                                result.result!.geometry!.location!.lat!;
+                                    result.result!.geometry!.location!.lat!;
                                 double lng =
-                                result.result!.geometry!.location!.lng!;
+                                    result.result!.geometry!.location!.lng!;
                                 appState.changeRequestedDestination(
-                                    reqDestination: predictions[index].description, lat: lat, lng: lng);
-                                appState.updateDestination(destination: predictions[index].description);
+                                    reqDestination:
+                                        predictions[index].description,
+                                    lat: lat,
+                                    lng: lng);
+                                appState.updateDestination(
+                                    destination:
+                                        predictions[index].description);
                                 // LatLng coordinates = LatLng(lat, lng);
-                                LatLng coordinates = LatLng(appState.center!.latitude, appState.center!.longitude);
-                                appState.setPickCoordinates(coordinates: coordinates);
+                                LatLng coordinates = LatLng(
+                                    appState.center!.latitude,
+                                    appState.center!.longitude);
+                                appState.setPickCoordinates(
+                                    coordinates: coordinates);
                                 appState.changePickupLocationAddress(
                                     address: predictions[index].description!);
                               }
@@ -223,28 +236,65 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
                       }),
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 40.h,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: 15.0.w,
-                    right: 15.0.w,
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      appState.setPaddingFAB(160.h);
-                      await appState.sendRequest();
-                      appState.changeWidgetShowed(
-                          showWidget: Show.PAYMENT_METHOD_SELECTION);
-                    },
-                    style: ElevatedButton.styleFrom(primary: Colors.orange),
-                    child: Text(
-                      "Confirmar viaje",
-                      style: TextStyle(color: white, fontSize: 16.sp),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 8.h, right: 8.h),
+                      child: SizedBox(
+                        height: 35.h,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            appState.setPaddingFAB(160.h);
+                            // await appState.sendRequest();
+                            appState.updateDestination(destination: "");
+                            appState.changePickupLocationAddress(address: "");
+                            appState.changeWidgetShowed(
+                                showWidget: Show.DESTINATION_SELECTION);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.deepOrange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            "Cancelar viaje",
+                            style: TextStyle(color: white, fontSize: 16.sp),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 8.h, right: 8.h),
+                      child: SizedBox(
+                        height: 35.h,
+                        child: ElevatedButton(
+
+                          onPressed: () async {
+                            await initLocation(appState);
+                            appState.setPaddingFAB(160.h);
+                            await appState.sendRequest();
+                            appState.changeWidgetShowed(
+                                showWidget: Show.PAYMENT_METHOD_SELECTION);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            "Cotizar viaje",
+                            style: TextStyle(color: white, fontSize: 16.sp),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ],
           ),
@@ -271,7 +321,8 @@ class _PickupSelectionWidgetState extends State<PickupSelectionWidget> {
         longitude: appState.center!.longitude);
     appState.updateDestination(destination: addresses.streetAddress.toString());
     // LatLng coordinates = LatLng(lat, lng);
-    LatLng coordinates = LatLng(appState.center!.latitude, appState.center!.longitude);
+    LatLng coordinates =
+        LatLng(appState.center!.latitude, appState.center!.longitude);
     appState.setPickCoordinates(coordinates: coordinates);
     appState.changePickupLocationAddress(
         address: addresses.streetAddress.toString());

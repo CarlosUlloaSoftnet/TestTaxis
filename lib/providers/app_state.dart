@@ -18,6 +18,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'dart:convert' as convert;
 
 import '../Models/Geolocalisation.dart';
+import '../Models/rates.dart';
 import '../Models/ride_request.dart';
 import '../Models/route.dart';
 import '../helpers/style.dart';
@@ -73,6 +74,8 @@ class AppStateProvider with ChangeNotifier {
   bool visibleFAB = false;
   double paddingFAB = 130.h;
 
+  List<Datum> ratesList = [];
+
   var businessId = "621e99fcd27526d5cdd71ae9";
 
   //  draggable to show
@@ -81,6 +84,7 @@ class AppStateProvider with ChangeNotifier {
   //   taxi pin
   late Uint8List carPin;
   late Uint8List pickUpPin;
+  late Uint8List personPin;
 
   LatLng? get center => _center;
 
@@ -202,13 +206,18 @@ class AppStateProvider with ChangeNotifier {
   _setCustomMapPin() async {
     String car = "assets/taxi.png";
     String pickUp = "assets/pin_pickup.png";
+    String person = "assets/person_marker.png";
     carPin = await _getBytesFromAsset(
         path: car,
         width: 110
         );
     pickUpPin = await _getBytesFromAsset(
         path: pickUp,
-        width: 110
+        width: 30
+    );
+    personPin = await _getBytesFromAsset(
+        path: person,
+        width: 70
     );
     /*carPin = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(devicePixelRatio: 2.5), 'assets/taxi.png');*/
@@ -316,7 +325,7 @@ class AppStateProvider with ChangeNotifier {
         // anchor: Offset(0, 0.85),
         // zIndex: 3,
         infoWindow: InfoWindow(title: "Direccion", snippet: ""),
-        icon: BitmapDescriptor.fromBytes(pickUpPin)));
+        icon: BitmapDescriptor.fromBytes(personPin)));
         // icon: BitmapDescriptor.defaultMarker));
     notifyListeners();
   }
@@ -342,11 +351,20 @@ class AppStateProvider with ChangeNotifier {
       //PRECIO DE VIAJE
       // getRate(_dest, _org, businessId);
       DriverService driver = DriverService();
-      var rateData = driver.getRate(_dest, _org, businessId);
+      var rateData = await driver.getRate(_dest, _org, businessId);
+      if(rateData != null){
+        if(rateData.status == "success") {
+          for (var element in rateData.data) {
+              var data = Datum(type: element.type, estimate: element.estimate);
+              ratesList.add(data);
+          }
+        }
+      }
+
     // .toStringAsFixed(2)
-      await rateData.then((value) => {
-        ridePrice = double.parse(value.toString())
-      });
+    //   await rateData.then((value) => {
+    //     ridePrice = double.parse(value.toString())
+    //   });
     }
     List<Marker> mks = _markers
         .where((element) => element.markerId.value == "location")
@@ -357,11 +375,10 @@ class AppStateProvider with ChangeNotifier {
 // ! another method will be created just to draw the polys and add markers
     _addLocationMarker(destinationCoordinates, routeModel.distance!.text!);
     _center = destinationCoordinates;
-    // LatLng updateCamera = LatLng(pickupCoordinates.latitude, destinationCoordinates.longitude);
-    // CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(updateCamera, 13);
-    LatLngBounds bound = LatLngBounds(southwest: pickupCoordinates, northeast: destinationCoordinates);
-    CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bound, 13);
-    _mapController.animateCamera(cameraUpdate);
+    LatLng updateCamera = LatLng(pickupCoordinates.latitude, destinationCoordinates.longitude);
+    CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(updateCamera, 13);
+    // LatLngBounds bound = LatLngBounds(southwest: pickupCoordinates, northeast: destinationCoordinates);
+    // CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bound, 13);
     _mapController.animateCamera(cameraUpdate);
     if (_poly != null) {
       _createRoute(route.points!, color: Colors.deepOrange);
@@ -384,7 +401,7 @@ class AppStateProvider with ChangeNotifier {
         position: position,
         anchor: const Offset(0, 0.85),
         infoWindow:
-            InfoWindow(title: destinationController.text, snippet: distance),
+            InfoWindow(title: pickupLocationController.text, snippet: distance),
         icon: BitmapDescriptor.fromBytes(pickUpPin)));
     notifyListeners();
   }
@@ -541,6 +558,19 @@ class AppStateProvider with ChangeNotifier {
 
   changeWidgetShowed({required Show showWidget}) {
     show = showWidget;
+    if(showWidget == Show.DESTINATION_SELECTION){
+      if(_poly.isNotEmpty){
+        clearPoly();
+        LatLng updateCamera = LatLng(_center!.latitude, _center!.longitude);
+        CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(updateCamera, 15);
+        _mapController.animateCamera(cameraUpdate);
+        for (var element in _markers) {
+          if(element.markerId == const MarkerId(LOCATION_MARKER_ID)){
+            _markers.remove(element);
+          }
+        }
+      }
+    }
     notifyListeners();
   }
 

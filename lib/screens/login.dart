@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _userController = TextEditingController();
   final _passController = TextEditingController();
+  var textUser = "";
   var _obscureText = true;
 
   @override
@@ -83,6 +84,9 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         onChanged: (text) {
                           if (text.length > 1) {
+                            setState(() {
+                              textUser = text;
+                            });
                             _formKey.currentState?.validate();
                           }
                         },
@@ -90,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                           filled: true,
                           fillColor: Colors.white24,
                           labelText: "Usuario:",
-                          suffixIcon: _userController.text.isNotEmpty
+                          suffixIcon: textUser.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(
                                     Icons.clear,
@@ -146,12 +150,16 @@ class _LoginPageState extends State<LoginPage> {
                           height: 40.h,
                           child: ElevatedButton(
                             child: const Text("Aceptar"),
+                            style: ElevatedButton.styleFrom(shape:RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),),
                             // style: ElevatedButton.styleFrom(
                             //     primary: Theme.of(context).primaryColor),
                             onPressed: () {
                               if (!_formKey.currentState!.validate()) {
                                 return;
                               }
+                              Navigator.of(context).pop();
                               Navigator.pushNamed(context, "/MapHome");
                             },
                           ),

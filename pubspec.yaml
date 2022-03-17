@@ -88,6 +88,8 @@ flutter:
    - assets/marker_orange.png
    - assets/pin_pickup.png
    - assets/logo_taxi.png
+   - assets/person_marker.png
+   - assets/dollar.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

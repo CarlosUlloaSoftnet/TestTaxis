@@ -8,6 +8,7 @@ import 'package:test_project/Models/Geolocalisation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
+import '../Models/rates.dart';
 import '../providers/app_state.dart';
 
 class DriverService {
@@ -28,7 +29,7 @@ class DriverService {
         event.documents.map((e) => DriverModel.fromSnapsho  t(e)).toList());*/
   }
 
-  Future<String> getRate(
+  Future<Rates?> getRate(
       LatLng destination, LatLng origin, String businessId) async {
     var url =
         Uri.parse('https://booking-dot-stxi-340320.uc.r.appspot.com/booking-service/v2/bookings/quotations');
@@ -40,12 +41,15 @@ class DriverService {
         'businessId': businessId,
       });
     if(response.statusCode == 200){
-      var jsonResponse =
-      convert.jsonDecode(response.body) as Map<String, dynamic>;
-      var total = jsonResponse['total'];
-      return total.toString();
+      var jsonResponse = convert.jsonDecode(response.body);
+      var rates = Rates.fromJson(jsonResponse);
+      return rates;
+      // var jsonResponse =
+      // convert.jsonDecode(response.body) as Map<String, dynamic>;
+      // var total = jsonResponse['total'];
+      // return total.toString();
     }
-    return "0";
+    return null;
   }
 
 /*  Future<Welcome> getDriverById(String id) =>
